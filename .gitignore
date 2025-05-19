@@ -1,0 +1,87 @@
+# Logs
+logs/
+*.log
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime files
+*.pid
+*.seed
+*.pid.lock
+
+# Compiled source files / Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Python virtual environments
+venv/
+.env/
+.venv/
+
+# Environment variable files
+.env
+
+# SSL certificates
+certs/*.pem
+certs/*.key
+certs/*.crt
+certs/*.der
+certs/*.p12
+certs/*.pfx
+
+
+# Distribution / Packaging
+build/
+dist/
+dist-ssr/
+*.egg-info/
+.eggs/
+
+# Node modules (if applicable)
+node_modules/
+
+# IDEs and editors
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Unit test / coverage / profiling
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+.pytest_cache/
+.cache/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Docker
+docker-compose.override.yml
+.dockerignore
+
+# Misc
+*.bak
+*.tmp
+*.orig
+*.old
+*.log.old
+db.sqlite3
+*.pem

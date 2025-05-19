@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 - CSRF Verification Failed</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        .error-container {
+            background-color: #f8f9fa;
+            border-left: 4px solid #dc3545;
+            padding: 20px;
+            border-radius: 4px;
+            margin: 40px 0;
+        }
+        h1 {
+            color: #dc3545;
+            margin-top: 0;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .back-link:hover {
+            background-color: #0069d9;
+        }
+        .info {
+            background-color: #e9f5fc;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <h1>403 Forbidden</h1>
+        <h2>CSRF Verification Failed</h2>
+        <p>Your request could not be processed because the CSRF token verification failed. This may happen for one of the following reasons:</p>
+        <ul>
+            <li>The form has been opened for too long and the CSRF token has expired.</li>
+            <li>The CSRF token in the cookie was missing or invalid.</li>
+            <li>Your browser may be blocking cookies required for CSRF protection.</li>
+            <li>You may be accessing the site through an insecure connection.</li>
+        </ul>
+        
+        {% if reason %}
+        <div class="info">
+            <strong>Reason:</strong> {{ reason }}
+        </div>
+        {% endif %}
+        
+        <p>Please try the following:</p>
+        <ul>
+            <li>Refresh the page and try again.</li>
+            <li>Make sure cookies are enabled in your browser.</li>
+            <li>Clear your browser's cache and cookies.</li>
+            <li>Contact the administrator if the problem persists.</li>
+        </ul>
+        
+        <a href="/" class="back-link">Return to Home</a>
+    </div>
+</body>
+</html>
