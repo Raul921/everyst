@@ -763,10 +763,10 @@ export const SummitDashboard: React.FC = () => {
           
           <Card title="Get Support" collapsible defaultCollapsed={true}>
             <CardEmptyState 
-              message="Need help with everyst? Our support team is available 24/7."
+              message="Need help with everyst?"
               action={
                 <Button variant="primary">
-                  Contact Support
+                  Submit an issue
                 </Button>
               }
             />
