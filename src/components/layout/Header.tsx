@@ -110,7 +110,7 @@ export const Header: React.FC<HeaderProps> = ({
         
         {/* Documentation link */}
         <a 
-          href="https://docs.everestdash.io/home"
+          href="https://docs.everyst.io/home"
           target="_blank"
           rel="noopener noreferrer"
           className="p-1.5 rounded-md hover:bg-[rgba(var(--color-primary),0.1)] transition-colors duration-200 flex items-center justify-center group"
