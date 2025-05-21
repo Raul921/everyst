@@ -1,21 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Card, 
-  CardEmptyState,
   Panel, 
   StatusPill, 
-  IconButton,
   Button
 } from '../../components/ui';
+import { Modal } from '../../components/ui/Modal';
 import { 
-  Plus, 
-  RefreshCw, 
-  Shield,
   MessageSquare, 
-  X, 
   Bell,
-  Phone,
   Cloud,
   CloudCog,
   Laptop,
@@ -27,21 +20,15 @@ import {
   Settings,
   Lock,
   User,
-  GitBranch,
-  AlertCircle,
-  Terminal,
-  FileDigit,
-  FileBarChart,
-  KeyRound,
-  ShieldAlert,
-  HardDrive
+  Clock,
+  Star
 } from 'lucide-react';
 
-// Updated types for our integrations to include security and monitoring categories
+// Updated types for our integrations to focus on identity and notification integrations
 interface ServiceConnection {
   id: string;
   name: string;
-  type: 'communication' | 'security' | 'monitoring' | 'cloud' | 'authentication';
+  type: 'communication' | 'notification' | 'cloud' | 'authentication';
   provider: string;
   status: 'connected' | 'disconnected' | 'error' | 'pending';
   lastConnected: string | null;
@@ -49,7 +36,60 @@ interface ServiceConnection {
   connectedAccount?: string;
   workspaces?: string[];
   description?: string;
+  comingSoon?: boolean;
 }
+
+// Predefined services by category
+const predefinedServices = {
+  authentication: [
+    { id: 'github', name: 'GitHub', provider: 'GitHub', icon: <User size={24} />, description: 'GitHub SSO authentication', comingSoon: true },
+    { id: 'azure-ad', name: 'Azure AD', provider: 'Microsoft', icon: <User size={24} />, description: 'Microsoft identity services', comingSoon: true },
+    { id: 'google', name: 'Google', provider: 'Google', icon: <User size={24} />, description: 'Google account authentication', comingSoon: true },
+    { id: 'okta', name: 'Okta', provider: 'Okta', icon: <Lock size={24} />, description: 'Enterprise identity management', comingSoon: true }
+  ],
+  communication: [
+    { id: 'ms-teams', name: 'Microsoft Teams', provider: 'Microsoft', icon: <MessageSquare size={24} />, description: 'Team collaboration and messaging', comingSoon: true },
+    { id: 'slack', name: 'Slack', provider: 'Slack', icon: <MessageSquare size={24} />, description: 'Channel-based messaging platform', comingSoon: true },
+    { id: 'discord', name: 'Discord', provider: 'Discord', icon: <MessageSquare size={24} />, description: 'Voice and text chat', comingSoon: true }
+  ],
+  notification: [
+    { id: 'email', name: 'Email Notifications', provider: 'SMTP', icon: <Bell size={24} />, description: 'Email alerts and notifications', comingSoon: false },
+    { id: 'sms', name: 'SMS', provider: 'Twilio', icon: <Bell size={24} />, description: 'Text message alerts', comingSoon: true },
+    { id: 'push', name: 'Push Notifications', provider: 'Web Push', icon: <Bell size={24} />, description: 'Browser and mobile notifications', comingSoon: true }
+  ],
+  cloud: [
+    { id: 'aws', name: 'AWS', provider: 'Amazon', icon: <Cloud size={24} />, description: 'Amazon Web Services integration', comingSoon: true },
+    { id: 'azure', name: 'Azure', provider: 'Microsoft', icon: <CloudCog size={24} />, description: 'Microsoft Azure cloud services', comingSoon: true },
+    { id: 'gcp', name: 'Google Cloud', provider: 'Google', icon: <Cloud size={24} />, description: 'Google Cloud Platform', comingSoon: true }
+  ]
+};
+
+// Custom Coming Soon Banner component
+const ComingSoonBanner: React.FC = () => {
+  return (
+    <div className="absolute top-0 right-0 z-10 overflow-hidden w-full h-full">
+      {/* Overlay effect */}
+      <div className="absolute inset-0 bg-[rgba(0,0,0,0.03)] backdrop-blur-[1px] rounded-lg pointer-events-none"></div>
+      
+      {/* Ribbon */}
+      <div className="absolute -top-2 -right-2 z-20">
+        <div className="bg-gradient-to-r from-[rgb(var(--color-warning))] to-[rgb(var(--color-primary))] text-white font-bold py-1 px-6 shadow-lg transform rotate-[20deg]">
+          <div className="flex items-center gap-1">
+            <Clock size={14} className="animate-pulse" />
+            <span className="text-xs tracking-wider">COMING SOON</span>
+          </div>
+        </div>
+        {/* Shadow effect for the ribbon */}
+        <div className="absolute -bottom-1 right-0 w-2 h-2 bg-[rgba(0,0,0,0.2)] rounded-sm"></div>
+      </div>
+      
+      {/* Star decoration */}
+      <div className="absolute bottom-2 left-2">
+        <Star size={16} className="text-[rgb(var(--color-warning))] opacity-50 animate-pulse" />
+      </div>
+    </div>
+  );
+};
 
 export const BasecampIntegrations: React.FC = () => {
   // State for service connections
@@ -57,11 +97,10 @@ export const BasecampIntegrations: React.FC = () => {
   
   // Loading states
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isConnecting, setIsConnecting] = useState<string | null>(null);
   
-  // Modal state for adding new integrations
+  // Modal state for service configuration
   const [showAddModal, setShowAddModal] = useState<boolean>(false);
-  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [selectedService, setSelectedService] = useState<Partial<ServiceConnection> | null>(null);
   
   // Filter state
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
@@ -73,353 +112,25 @@ export const BasecampIntegrations: React.FC = () => {
       // In a real app, this would be an API call
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      const sampleConnections: ServiceConnection[] = [
-        {
-          id: 'ms-teams-1',
-          name: 'Microsoft Teams',
-          type: 'communication',
-          provider: 'Microsoft',
-          status: 'disconnected',
-          lastConnected: null,
-          icon: <MessageSquare size={24} />,
-          description: 'Security incident collaboration and response'
-        },
-        {
-          id: 'pagerduty-1',
-          name: 'PagerDuty',
-          type: 'communication',
-          provider: 'PagerDuty',
-          status: 'disconnected',
-          lastConnected: null,
-          icon: <Phone size={24} />,
-          description: 'On-call rotation and emergency notifications'
-        },
-        {
-          id: 'datadog-1',
-          name: 'Datadog',
-          type: 'monitoring',
-          provider: 'Datadog',
-          status: 'disconnected',
-          lastConnected: null,
-          icon: <FileBarChart size={24} />,
-          description: 'Security observability and compliance monitoring'
-        },
-        {
-          id: 'splunk-1',
-          name: 'Splunk',
-          type: 'monitoring',
-          provider: 'Splunk',
-          status: 'disconnected',
-          lastConnected: null,
-          icon: <FileDigit size={24} />,
-          description: 'SIEM integration for security log analysis'
-        },
-        {
-          id: 'crowdstrike-1',
-          name: 'CrowdStrike',
-          type: 'security',
-          provider: 'CrowdStrike',
-          status: 'disconnected',
-          lastConnected: null,
-          icon: <ShieldAlert size={24} />,
-          description: 'Endpoint security and threat intelligence'
-        },
-        {
-          id: 'sentinelone-1',
-          name: 'SentinelOne',
-          type: 'security',
-          provider: 'SentinelOne',
-          status: 'disconnected',
-          lastConnected: null,
-          icon: <Shield size={24} />,
-          description: 'Autonomous endpoint protection'
-        },
-        {
-          id: 'aws-1',
-          name: 'AWS Security Hub',
-          type: 'cloud',
-          provider: 'Amazon',
-          status: 'disconnected',
-          lastConnected: null,
-          icon: <Cloud size={24} />,
-          description: 'Cloud security posture and compliance'
-        },
-        {
-          id: 'azure-sentinel-1',
-          name: 'Azure Sentinel',
-          type: 'cloud',
-          provider: 'Microsoft',
-          status: 'disconnected',
-          lastConnected: null,
-          icon: <CloudCog size={24} />,
-          description: 'Cloud SIEM and security analytics'
-        },
-        {
-          id: 'okta-1',
-          name: 'Okta',
-          type: 'authentication',
-          provider: 'Okta',
-          status: 'disconnected',
-          lastConnected: null,
-          icon: <User size={24} />,
-          description: 'Identity management and SSO'
-        },
-        {
-          id: 'hashicorp-vault-1',
-          name: 'HashiCorp Vault',
-          type: 'security',
-          provider: 'HashiCorp',
-          status: 'disconnected',
-          lastConnected: null,
-          icon: <KeyRound size={24} />,
-          description: 'Secrets management and data encryption'
-        },
-        {
-          id: 'cloudflare-1',
-          name: 'Cloudflare',
-          type: 'security',
-          provider: 'Cloudflare',
-          status: 'disconnected',
-          lastConnected: null,
-          icon: <Shield size={24} />,
-          description: 'DDoS protection and WAF'
-        },
-        {
-          id: 'prisma-cloud-1',
-          name: 'Prisma Cloud',
-          type: 'cloud',
-          provider: 'Palo Alto Networks',
-          status: 'disconnected',
-          lastConnected: null,
-          icon: <CloudCog size={24} />,
-          description: 'Cloud native security platform'
-        },
-        {
-          id: 'snyk-1',
-          name: 'Snyk',
-          type: 'security',
-          provider: 'Snyk',
-          status: 'disconnected',
-          lastConnected: null,
-          icon: <GitBranch size={24} />,
-          description: 'Software composition analysis'
-        },
-        {
-          id: 'opsgenie-1',
-          name: 'Opsgenie',
-          type: 'communication',
-          provider: 'Atlassian',
-          status: 'disconnected',
-          lastConnected: null,
-          icon: <Bell size={24} />,
-          description: 'Alert escalation and on-call management'
-        },
-        {
-          id: 'sonarqube-1',
-          name: 'SonarQube',
-          type: 'security',
-          provider: 'SonarSource',
-          status: 'disconnected',
-          lastConnected: null,
-          icon: <Terminal size={24} />,
-          description: 'Code quality and security review'
-        }
-      ];
-      
-      setConnections(sampleConnections);
+      // Initialize with empty connections array
+      setConnections([]);
       setIsLoading(false);
     };
     
     fetchData();
   }, []);
   
-  // Function to refresh connections
-  const refreshConnections = () => {
-    setIsLoading(true);
-    // Simulate fetch again
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-  };
-  
-  // Connect/disconnect a service
-  const toggleConnection = (id: string) => {
-    setIsConnecting(id);
-    
-    // Simulate API call delay
-    setTimeout(() => {
-      setConnections(prev => 
-        prev.map(conn => {
-          if (conn.id === id) {
-            const newStatus = conn.status === 'connected' ? 'disconnected' : 'connected';
-            // Only set lastConnected when connecting, keep null when disconnecting
-            const newLastConnected = newStatus === 'connected' ? new Date().toISOString() : null;
-            
-            // For connected state, we'll just add placeholder text for account details
-            // The actual implementation of connection details will be done later
-            return {
-              ...conn,
-              status: newStatus,
-              lastConnected: newLastConnected,
-              connectedAccount: newStatus === 'connected' ? 'Configure connection settings' : undefined,
-              workspaces: newStatus === 'connected' ? ['Settings required'] : undefined
-            };
-          }
-          return conn;
-        })
-      );
-      setIsConnecting(null);
-    }, 1500);
-  };
-  
   // Get counts for the overview
   const connectedCount = connections.filter(c => c.status === 'connected').length;
   const errorCount = connections.filter(c => c.status === 'error').length;
   const pendingCount = connections.filter(c => c.status === 'pending').length;
   
-  // Filter connections by type
-  const filteredConnections = activeFilter 
-    ? connections.filter(conn => conn.type === activeFilter)
-    : connections;
-  
-  // Group connections by type
-  const groupedConnections = {
-    communication: connections.filter(conn => conn.type === 'communication'),
-    security: connections.filter(conn => conn.type === 'security'),
-    monitoring: connections.filter(conn => conn.type === 'monitoring'),
-    cloud: connections.filter(conn => conn.type === 'cloud'),
-    authentication: connections.filter(conn => conn.type === 'authentication')
-  };
-  
-  // Animation variants
-  const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (i: number) => ({ 
-      opacity: 1, 
-      y: 0,
-      transition: { 
-        delay: i * 0.05,
-        duration: 0.3,
-        ease: "easeOut" 
-      }
-    }),
-    exit: { opacity: 0, y: -20 }
-  };
-  
-  // Render a connection card
-  const renderConnectionCard = (connection: ServiceConnection, index: number) => {
-    // Fix the variable reference error here - use a direct comparison instead of assignment
-    const isCurrentlyConnecting = isConnecting === connection.id;
-    
-    return (
-      <motion.div
-        key={connection.id}
-        custom={index}
-        initial="hidden"
-        animate="visible"
-        exit="exit"
-        variants={cardVariants}
-        layoutId={connection.id}
-      >
-        <Card 
-          className="hover:border-[rgb(var(--color-primary-light))] transition-colors duration-300"
-        >
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-4">
-              <div className="flex-shrink-0 p-2 bg-[rgba(var(--color-primary),0.1)] rounded-lg text-[rgb(var(--color-primary))]">
-                {connection.icon}
-              </div>
-              <div>
-                <h3 className="font-medium">{connection.name}</h3>
-                <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                  {connection.provider}
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <StatusPill 
-                status={
-                  connection.status === 'connected' ? 'success' : 
-                  connection.status === 'pending' ? 'warning' : 
-                  connection.status === 'error' ? 'error' : 'warning' // Default to 'warning' instead of 'none'
-                } 
-                text={connection.status} 
-                size="sm"
-              />
-              <Button
-                variant="ghost" 
-                size="sm"
-                aria-label="Configure"
-                title="Configure"
-                className="p-1"
-              >
-                <Settings size={16} />
-              </Button>
-            </div>
-          </div>
-          
-          {connection.description && (
-            <div className="mt-2 text-sm text-[rgb(var(--color-text-secondary))]">
-              {connection.description}
-            </div>
-          )}
-          
-          {connection.status === 'connected' && (
-            <motion.div 
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              className="mt-4 pt-3 border-t border-[rgb(var(--color-border))]"
-            >
-              <div className="flex items-center justify-center p-3 bg-[rgba(var(--color-primary),0.05)] rounded-md text-sm">
-                <Settings size={16} className="text-[rgb(var(--color-primary))] mr-2" />
-                <span>Configuration required. Visit settings to complete setup.</span>
-              </div>
-              
-              {connection.lastConnected && (
-                <div className="flex justify-between text-sm mt-2">
-                  <span className="text-[rgb(var(--color-text-secondary))]">Connected:</span>
-                  <span>{new Date(connection.lastConnected).toLocaleDateString()}</span>
-                </div>
-              )}
-            </motion.div>
-          )}
-          
-          {connection.status === 'error' && (
-            <motion.div 
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              className="mt-4 p-3 bg-[rgba(var(--color-error),0.1)] rounded-md text-sm flex items-center"
-            >
-              <AlertTriangle size={16} className="text-[rgb(var(--color-error))] mr-2" />
-              Authentication token expired. Please reconnect.
-            </motion.div>
-          )}
-          
-          <div className="mt-4 flex justify-end">
-            <Button 
-              onClick={() => toggleConnection(connection.id)}
-              disabled={isCurrentlyConnecting || connection.status === 'pending'}
-              variant={connection.status === 'connected' ? 'outline' : 'outline'}
-              size="sm"
-              isLoading={isCurrentlyConnecting}
-              leftIcon={isCurrentlyConnecting ? undefined : (connection.status === 'connected' ? <X size={14} /> : <ExternalLink size={14} />)}
-              className={connection.status === 'connected' ? 'text-[rgb(var(--color-error-light))] hover:bg-[rgba(var(--color-error),0.1)]' : ''}
-            >
-              {isCurrentlyConnecting ? 'Processing...' : connection.status === 'connected' ? 'Disconnect' : 'Connect'}
-            </Button>
-          </div>
-        </Card>
-      </motion.div>
-    );
-  };
   
   // Updated filter buttons to match the new integration types
   const filterButtons = [
     { id: null, label: 'All' },
     { id: 'communication', label: 'Communication' },
-    { id: 'security', label: 'Security' },
-    { id: 'monitoring', label: 'Monitoring' },
+    { id: 'notification', label: 'Notifications' },
     { id: 'cloud', label: 'Cloud' },
     { id: 'authentication', label: 'Authentication' }
   ];
@@ -430,14 +141,14 @@ export const BasecampIntegrations: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
         <div>
           <h1 className="text-2xl font-bold text-[rgb(var(--color-text))]">Basecamp</h1>
-          <p className="text-[rgb(var(--color-text-secondary))]">Manage your security service connections</p>
+          <p className="text-[rgb(var(--color-text-secondary))]">Manage your identity and collaboration tool integrations</p>
         </div>
       </div>
 
       {/* Overview panel */}
       <Panel 
         title="Connections Overview" 
-        description="Status of your security integrations"
+        description="Status of your identity and notification integrations"
       >
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="bg-[rgba(var(--color-primary),0.05)]">
@@ -525,23 +236,75 @@ export const BasecampIntegrations: React.FC = () => {
                 </Card>
               ))}
             </div>
-          ) : filteredConnections.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredConnections.map((connection, index) => renderConnectionCard(connection, index))}
-            </div>
-          ) : (
-            <Card>
-              <CardEmptyState                  message={`No ${activeFilter} integrations found`}
-                  action={
-                    <Button 
-                      onClick={() => setShowAddModal(true)}
-                      variant="primary"
+          ) : (              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {predefinedServices[activeFilter as keyof typeof predefinedServices].map((service) => {
+                  // Check if this service is already connected
+                  const existingConnection = connections.find(conn => conn.id.startsWith(service.id));
+                  
+                  return (
+                    <Card 
+                      key={service.id}
+                      className={`hover:border-[rgb(var(--color-primary-light))] transition-colors duration-300 flex flex-col relative ${service.comingSoon ? 'overflow-hidden' : ''}`}
                     >
-                      Add Integration
-                    </Button>
-                  }
-                />
-            </Card>
+                      {service.comingSoon && <ComingSoonBanner />}
+                      <div className="flex justify-between items-start relative z-1">
+                        <div className="flex items-center space-x-4">
+                          <div className="flex-shrink-0 p-3 bg-[rgba(var(--color-primary),0.1)] rounded-lg text-[rgb(var(--color-primary))]">
+                            {service.icon}
+                          </div>
+                          <div>
+                            <h3 className="font-medium">{service.name}</h3>
+                            <div className="text-xs text-[rgb(var(--color-text-secondary))]">
+                              {service.provider}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          {existingConnection && (
+                            <StatusPill 
+                              status={
+                                existingConnection.status === 'connected' ? 'success' : 
+                                existingConnection.status === 'pending' ? 'warning' : 
+                                existingConnection.status === 'error' ? 'error' : 'warning'
+                              } 
+                              text={existingConnection.status} 
+                              size="sm"
+                            />
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3 text-sm text-[rgb(var(--color-text-secondary))] flex-grow">
+                        {service.description}
+                      </div>
+                      
+                      <div className="mt-4 pt-3 border-t border-[rgb(var(--color-border))]">
+                        <Button 
+                          onClick={() => {
+                            if (!service.comingSoon) {
+                              setSelectedService({
+                                ...service,
+                                type: activeFilter as 'communication' | 'notification' | 'cloud' | 'authentication',
+                                status: 'disconnected',
+                                lastConnected: null
+                              });
+                              setShowAddModal(true);
+                            }
+                          }}
+                          variant={existingConnection ? "outline" : "primary"}
+                          size="sm"
+                          fullWidth
+                          disabled={service.comingSoon}
+                          leftIcon={existingConnection ? <Settings size={14} /> : <ExternalLink size={14} />}
+                        >
+                          {existingConnection ? 'Configure' : (service.comingSoon ? 'Coming Soon' : 'Connect')}
+                        </Button>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
           )}
         </Panel>
       )}
@@ -549,50 +312,97 @@ export const BasecampIntegrations: React.FC = () => {
       {/* Group by category when no filter is selected */}
       {!activeFilter && (
         <>
-          {/* Security Services */}
+          {/* Authentication Services */}
           <Panel 
-            title="Security Services" 
-            description="Security tools and threat intelligence platforms"
+            title="Authentication Services" 
+            description="Identity providers for SSO and authentication"
             defaultExpanded={true}
           >
             {isLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[1, 2, 3].map(i => (
+                {[1, 2].map(i => (
                   <Card key={i} className="animate-pulse">
                     <div className="h-20 w-full bg-[rgba(var(--color-card-muted),0.3)] rounded"></div>
                   </Card>
                 ))}
               </div>
-            ) : groupedConnections.security.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {groupedConnections.security.map((connection, index) => 
-                  renderConnectionCard(connection, index)
-                )}
-              </div>
             ) : (
-              <Card>
-                <CardEmptyState 
-                  message="No security services connected"
-                  action={
-                    <Button 
-                      onClick={() => {
-                        setSelectedType('security');
-                        setShowAddModal(true);
-                      }}
-                      variant="primary"
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {predefinedServices.authentication.map((service) => {
+                  // Check if this service is already connected
+                  const existingConnection = connections.find(conn => conn.id.startsWith(service.id));
+                  
+                  return (
+                    <Card 
+                      key={service.id}
+                      className={`hover:border-[rgb(var(--color-primary-light))] transition-colors duration-300 flex flex-col relative ${service.comingSoon ? 'overflow-hidden' : ''}`}
                     >
-                      Connect Service
-                    </Button>
-                  }
-                />
-              </Card>
+                      {service.comingSoon && <ComingSoonBanner />}
+                      <div className="flex justify-between items-start relative z-1">
+                        <div className="flex items-center space-x-4">
+                          <div className="flex-shrink-0 p-3 bg-[rgba(var(--color-primary),0.1)] rounded-lg text-[rgb(var(--color-primary))]">
+                            {service.icon}
+                          </div>
+                          <div>
+                            <h3 className="font-medium">{service.name}</h3>
+                            <div className="text-xs text-[rgb(var(--color-text-secondary))]">
+                              {service.provider}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          {existingConnection && (
+                            <StatusPill 
+                              status={
+                                existingConnection.status === 'connected' ? 'success' : 
+                                existingConnection.status === 'pending' ? 'warning' : 
+                                existingConnection.status === 'error' ? 'error' : 'warning'
+                              } 
+                              text={existingConnection.status} 
+                              size="sm"
+                            />
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3 text-sm text-[rgb(var(--color-text-secondary))] flex-grow">
+                        {service.description}
+                      </div>
+                      
+                      <div className="mt-4 pt-3 border-t border-[rgb(var(--color-border))]">
+                        <Button 
+                          onClick={() => {
+                            if (!service.comingSoon) {
+                              setSelectedService({
+                                ...service,
+                                type: 'authentication',
+                                status: 'disconnected',
+                                lastConnected: null
+                              });
+                              setShowAddModal(true);
+                            }
+                          }}
+                          variant={existingConnection ? "outline" : "primary"}
+                          size="sm"
+                          fullWidth
+                          disabled={service.comingSoon}
+                          leftIcon={existingConnection ? <Settings size={14} /> : <ExternalLink size={14} />}
+                        >
+                          {existingConnection ? 'Configure' : (service.comingSoon ? 'Coming Soon' : 'Connect')}
+                        </Button>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
             )}
           </Panel>
           
           {/* Communication Services */}
           <Panel 
             title="Communication Services" 
-            description="Alerts, notifications, and incident response"
+            description="Team collaboration tools and notification channels"
             defaultExpanded={true}
           >
             {isLoading ? (
@@ -603,36 +413,83 @@ export const BasecampIntegrations: React.FC = () => {
                   </Card>
                 ))}
               </div>
-            ) : groupedConnections.communication.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {groupedConnections.communication.map((connection, index) => 
-                  renderConnectionCard(connection, index)
-                )}
-              </div>
             ) : (
-              <Card>
-                <CardEmptyState 
-                  message="No communication services connected"
-                  action={
-                    <Button 
-                      onClick={() => {
-                        setSelectedType('communication');
-                        setShowAddModal(true);
-                      }}
-                      variant="primary"
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {predefinedServices.communication.map((service) => {
+                  // Check if this service is already connected
+                  const existingConnection = connections.find(conn => conn.id.startsWith(service.id));
+                  
+                  return (
+                    <Card 
+                      key={service.id}
+                      className={`hover:border-[rgb(var(--color-primary-light))] transition-colors duration-300 flex flex-col relative ${service.comingSoon ? 'overflow-hidden' : ''}`}
                     >
-                      Connect Service
-                    </Button>
-                  }
-                />
-              </Card>
+                      {service.comingSoon && <ComingSoonBanner />}
+                      <div className="flex justify-between items-start relative z-1">
+                        <div className="flex items-center space-x-4">
+                          <div className="flex-shrink-0 p-3 bg-[rgba(var(--color-primary),0.1)] rounded-lg text-[rgb(var(--color-primary))]">
+                            {service.icon}
+                          </div>
+                          <div>
+                            <h3 className="font-medium">{service.name}</h3>
+                            <div className="text-xs text-[rgb(var(--color-text-secondary))]">
+                              {service.provider}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          {existingConnection && (
+                            <StatusPill 
+                              status={
+                                existingConnection.status === 'connected' ? 'success' : 
+                                existingConnection.status === 'pending' ? 'warning' : 
+                                existingConnection.status === 'error' ? 'error' : 'warning'
+                              } 
+                              text={existingConnection.status} 
+                              size="sm"
+                            />
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3 text-sm text-[rgb(var(--color-text-secondary))] flex-grow">
+                        {service.description}
+                      </div>
+                      
+                      <div className="mt-4 pt-3 border-t border-[rgb(var(--color-border))]">
+                        <Button 
+                          onClick={() => {
+                            if (!service.comingSoon) {
+                              setSelectedService({
+                                ...service,
+                                type: 'communication',
+                                status: 'disconnected',
+                                lastConnected: null
+                              });
+                              setShowAddModal(true);
+                            }
+                          }}
+                          variant={existingConnection ? "outline" : "primary"}
+                          size="sm"
+                          fullWidth
+                          disabled={service.comingSoon}
+                          leftIcon={existingConnection ? <Settings size={14} /> : <ExternalLink size={14} />}
+                        >
+                          {existingConnection ? 'Configure' : (service.comingSoon ? 'Coming Soon' : 'Connect')}
+                        </Button>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
             )}
           </Panel>
           
-          {/* Monitoring Services */}
+          {/* Notification Services */}
           <Panel 
-            title="Monitoring Services" 
-            description="Log analysis and security monitoring"
+            title="Notification Services" 
+            description="Alert channels and notification delivery"
             defaultExpanded={true}
           >
             {isLoading ? (
@@ -643,36 +500,83 @@ export const BasecampIntegrations: React.FC = () => {
                   </Card>
                 ))}
               </div>
-            ) : groupedConnections.monitoring.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {groupedConnections.monitoring.map((connection, index) => 
-                  renderConnectionCard(connection, index)
-                )}
-              </div>
             ) : (
-              <Card>
-                <CardEmptyState 
-                  message="No monitoring services connected"
-                  action={
-                    <Button 
-                      onClick={() => {
-                        setSelectedType('monitoring');
-                        setShowAddModal(true);
-                      }}
-                      variant="primary"
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {predefinedServices.notification.map((service) => {
+                  // Check if this service is already connected
+                  const existingConnection = connections.find(conn => conn.id.startsWith(service.id));
+                  
+                  return (
+                    <Card 
+                      key={service.id}
+                      className={`hover:border-[rgb(var(--color-primary-light))] transition-colors duration-300 flex flex-col relative ${service.comingSoon ? 'overflow-hidden' : ''}`}
                     >
-                      Connect Service
-                    </Button>
-                  }
-                />
-              </Card>
+                      {service.comingSoon && <ComingSoonBanner />}
+                      <div className="flex justify-between items-start relative z-1">
+                        <div className="flex items-center space-x-4">
+                          <div className="flex-shrink-0 p-3 bg-[rgba(var(--color-primary),0.1)] rounded-lg text-[rgb(var(--color-primary))]">
+                            {service.icon}
+                          </div>
+                          <div>
+                            <h3 className="font-medium">{service.name}</h3>
+                            <div className="text-xs text-[rgb(var(--color-text-secondary))]">
+                              {service.provider}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          {existingConnection && (
+                            <StatusPill 
+                              status={
+                                existingConnection.status === 'connected' ? 'success' : 
+                                existingConnection.status === 'pending' ? 'warning' : 
+                                existingConnection.status === 'error' ? 'error' : 'warning'
+                              } 
+                              text={existingConnection.status} 
+                              size="sm"
+                            />
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3 text-sm text-[rgb(var(--color-text-secondary))] flex-grow">
+                        {service.description}
+                      </div>
+                      
+                      <div className="mt-4 pt-3 border-t border-[rgb(var(--color-border))]">
+                        <Button 
+                          onClick={() => {
+                            if (!service.comingSoon) {
+                              setSelectedService({
+                                ...service,
+                                type: 'notification',
+                                status: 'disconnected',
+                                lastConnected: null
+                              });
+                              setShowAddModal(true);
+                            }
+                          }}
+                          variant={existingConnection ? "outline" : "primary"}
+                          size="sm"
+                          fullWidth
+                          disabled={service.comingSoon}
+                          leftIcon={existingConnection ? <Settings size={14} /> : <ExternalLink size={14} />}
+                        >
+                          {existingConnection ? 'Configure' : (service.comingSoon ? 'Coming Soon' : 'Connect')}
+                        </Button>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
             )}
           </Panel>
           
           {/* Cloud Services */}
           <Panel 
-            title="Cloud Security" 
-            description="Cloud security and compliance services"
+            title="Cloud Services" 
+            description="Cloud provider integrations"
             defaultExpanded={true}
           >
             {isLoading ? (
@@ -683,69 +587,76 @@ export const BasecampIntegrations: React.FC = () => {
                   </Card>
                 ))}
               </div>
-            ) : groupedConnections.cloud.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {groupedConnections.cloud.map((connection, index) => 
-                  renderConnectionCard(connection, index)
-                )}
-              </div>
             ) : (
-              <Card>
-                <CardEmptyState 
-                  message="No cloud security services connected"
-                  action={
-                    <Button 
-                      onClick={() => {
-                        setSelectedType('cloud');
-                        setShowAddModal(true);
-                      }}
-                      variant="primary"
-                    >
-                      Connect Service
-                    </Button>
-                  }
-                />
-              </Card>
-            )}
-          </Panel>
-          
-          {/* Authentication Services */}
-          <Panel 
-            title="Authentication Services" 
-            description="Identity and access management"
-            defaultExpanded={true}
-          >
-            {isLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[1, 2].map(i => (
-                  <Card key={i} className="animate-pulse">
-                    <div className="h-20 w-full bg-[rgba(var(--color-card-muted),0.3)] rounded"></div>
-                  </Card>
-                ))}
-              </div>
-            ) : groupedConnections.authentication.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {groupedConnections.authentication.map((connection, index) => 
-                  renderConnectionCard(connection, index)
-                )}
-              </div>
-            ) : (
-              <Card>
-                <CardEmptyState 
-                  message="No authentication services connected"
-                  action={
-                    <Button 
-                      onClick={() => {
-                        setSelectedType('authentication');
-                        setShowAddModal(true);
-                      }}
-                      variant="primary"
+                {predefinedServices.cloud.map((service) => {
+                  // Check if this service is already connected
+                  const existingConnection = connections.find(conn => conn.id.startsWith(service.id));
+                  
+                  return (
+                    <Card 
+                      key={service.id}
+                      className={`hover:border-[rgb(var(--color-primary-light))] transition-colors duration-300 flex flex-col relative ${service.comingSoon ? 'overflow-hidden' : ''}`}
                     >
-                      Connect Service
-                    </Button>
-                  }
-                />
-              </Card>
+                      {service.comingSoon && <ComingSoonBanner />}
+                      <div className="flex justify-between items-start relative z-1">
+                        <div className="flex items-center space-x-4">
+                          <div className="flex-shrink-0 p-3 bg-[rgba(var(--color-primary),0.1)] rounded-lg text-[rgb(var(--color-primary))]">
+                            {service.icon}
+                          </div>
+                          <div>
+                            <h3 className="font-medium">{service.name}</h3>
+                            <div className="text-xs text-[rgb(var(--color-text-secondary))]">
+                              {service.provider}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          {existingConnection && (
+                            <StatusPill 
+                              status={
+                                existingConnection.status === 'connected' ? 'success' : 
+                                existingConnection.status === 'pending' ? 'warning' : 
+                                existingConnection.status === 'error' ? 'error' : 'warning'
+                              } 
+                              text={existingConnection.status} 
+                              size="sm"
+                            />
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3 text-sm text-[rgb(var(--color-text-secondary))] flex-grow">
+                        {service.description}
+                      </div>
+                      
+                      <div className="mt-4 pt-3 border-t border-[rgb(var(--color-border))]">
+                        <Button 
+                          onClick={() => {
+                            if (!service.comingSoon) {
+                              setSelectedService({
+                                ...service,
+                                type: 'cloud',
+                                status: 'disconnected',
+                                lastConnected: null
+                              });
+                              setShowAddModal(true);
+                            }
+                          }}
+                          variant={existingConnection ? "outline" : "primary"}
+                          size="sm"
+                          fullWidth
+                          disabled={service.comingSoon}
+                          leftIcon={existingConnection ? <Settings size={14} /> : <ExternalLink size={14} />}
+                        >
+                          {existingConnection ? 'Configure' : (service.comingSoon ? 'Coming Soon' : 'Connect')}
+                        </Button>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
             )}
           </Panel>
         </>
@@ -754,7 +665,7 @@ export const BasecampIntegrations: React.FC = () => {
       {/* Advanced Settings Panel */}
       <Panel 
         title="Connection Settings" 
-        description="Global security integration preferences"
+        description="Global integration preferences"
         defaultExpanded={false}
       >
         <div className="space-y-4">
@@ -779,15 +690,15 @@ export const BasecampIntegrations: React.FC = () => {
           <Card>
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="font-medium">Critical Alerts</h3>
+                <h3 className="font-medium">Integration Notifications</h3>
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                  Receive immediate alerts for critical security events
+                  Receive alerts when integration status changes
                 </p>
               </div>
               <Button 
                 variant="ghost" 
                 className="text-[rgb(var(--color-primary))]"
-                aria-label="Toggle critical alerts"
+                aria-label="Toggle integration notifications"
               >
                 <ToggleRight size={24} />
               </Button>
@@ -812,231 +723,195 @@ export const BasecampIntegrations: React.FC = () => {
       </Panel>
       
       {/* Add Integration Modal */}
-      <AnimatePresence>
-        {showAddModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
-            onClick={() => setShowAddModal(false)}
-          >
-            <motion.div 
-              className="bg-[rgb(var(--color-card))] rounded-lg shadow-xl max-w-lg w-full"
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex justify-between items-center border-b border-[rgb(var(--color-border))] p-4">
-                <h2 className="text-xl font-semibold">Add Security Integration</h2>
-                <Button 
-                  variant="ghost" 
-                  onClick={() => setShowAddModal(false)}
-                  aria-label="Close"
-                  title="Close"
-                  className="p-1"
-                >
-                  <X size={18} />
-                </Button>
+      {showAddModal && selectedService && (
+        <Modal
+          isOpen={showAddModal}
+          onClose={() => setShowAddModal(false)}
+          title={
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-[rgba(var(--color-primary),0.1)] rounded-lg text-[rgb(var(--color-primary))]">
+                {selectedService.icon}
               </div>
-              
-              <div className="p-6">
-                <div className="mb-6">
-                  <label className="block mb-2 text-sm font-medium">
-                    Integration Type
-                  </label>
-                  <select 
-                    className="w-full p-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgb(var(--color-card))]"
-                    value={selectedType || ''}
-                    onChange={(e) => setSelectedType(e.target.value || null)}
-                  >
-                    <option value="">Select type...</option>
-                    <option value="security">Security</option>
-                    <option value="communication">Communication</option>
-                    <option value="monitoring">Monitoring</option>
-                    <option value="cloud">Cloud Security</option>
-                    <option value="authentication">Authentication</option>
-                  </select>
-                </div>
-                
-                {selectedType && (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-3">
-                      {selectedType === 'communication' && (
-                        <>
-                          <Button 
-                            className="flex-col h-auto py-4"
-                            variant="outline"
-                            leftIcon={<MessageSquare className="text-[rgb(var(--color-primary))] mb-2" size={24} />}
-                          >
-                            MS Teams
-                          </Button>
-                          <Button 
-                            className="flex-col h-auto py-4"
-                            variant="outline"
-                            leftIcon={<Bell className="text-[rgb(var(--color-primary))] mb-2" size={24} />}
-                          >
-                            PagerDuty
-                          </Button>
-                          <Button 
-                            className="flex-col h-auto py-4"
-                            variant="outline"
-                            leftIcon={<AlertCircle className="text-[rgb(var(--color-primary))] mb-2" size={24} />}
-                          >
-                            Opsgenie
-                          </Button>
-                        </>
-                      )}
-                      
-                      {selectedType === 'security' && (
-                        <>
-                          <Button 
-                            className="flex-col h-auto py-4"
-                            variant="outline"
-                            leftIcon={<Shield className="text-[rgb(var(--color-primary))] mb-2" size={24} />}
-                          >
-                            CrowdStrike
-                          </Button>
-                          <Button 
-                            className="flex-col h-auto py-4"
-                            variant="outline"
-                            leftIcon={<ShieldAlert className="text-[rgb(var(--color-primary))] mb-2" size={24} />}
-                          >
-                            SentinelOne
-                          </Button>
-                          <Button 
-                            className="flex-col h-auto py-4"
-                            variant="outline"
-                            leftIcon={<KeyRound className="text-[rgb(var(--color-primary))] mb-2" size={24} />}
-                          >
-                            HashiCorp Vault
-                          </Button>
-                          <Button 
-                            className="flex-col h-auto py-4"
-                            variant="outline"
-                            leftIcon={<Terminal className="text-[rgb(var(--color-primary))] mb-2" size={24} />}
-                          >
-                            Snyk
-                          </Button>
-                        </>
-                      )}
-                      
-                      {selectedType === 'monitoring' && (
-                        <>
-                          <Button 
-                            className="flex-col h-auto py-4"
-                            variant="outline"
-                            leftIcon={<FileBarChart className="text-[rgb(var(--color-primary))] mb-2" size={24} />}
-                          >
-                            Datadog
-                          </Button>
-                          <Button 
-                            className="flex-col h-auto py-4"
-                            variant="outline"
-                            leftIcon={<FileDigit className="text-[rgb(var(--color-primary))] mb-2" size={24} />}
-                          >
-                            Splunk
-                          </Button>
-                          <Button 
-                            className="flex-col h-auto py-4"
-                            variant="outline"
-                            leftIcon={<AlertCircle className="text-[rgb(var(--color-primary))] mb-2" size={24} />}
-                          >
-                            New Relic
-                          </Button>
-                          <Button 
-                            className="flex-col h-auto py-4"
-                            variant="outline"
-                            leftIcon={<HardDrive className="text-[rgb(var(--color-primary))] mb-2" size={24} />}
-                          >
-                            Elastic
-                          </Button>
-                        </>
-                      )}
-                      
-                      {selectedType === 'cloud' && (
-                        <>
-                          <Button 
-                            className="flex-col h-auto py-4"
-                            variant="outline"
-                            leftIcon={<Cloud className="text-[rgb(var(--color-primary))] mb-2" size={24} />}
-                          >
-                            AWS Security Hub
-                          </Button>
-                          <Button 
-                            className="flex-col h-auto py-4"
-                            variant="outline"
-                            leftIcon={<CloudCog className="text-[rgb(var(--color-primary))] mb-2" size={24} />}
-                          >
-                            Azure Sentinel
-                          </Button>
-                          <Button 
-                            className="flex-col h-auto py-4"
-                            variant="outline"
-                            leftIcon={<Cloud className="text-[rgb(var(--color-primary))] mb-2" size={24} />}
-                          >
-                            GCP Security
-                          </Button>
-                          <Button 
-                            className="flex-col h-auto py-4"
-                            variant="outline"
-                            leftIcon={<CloudCog className="text-[rgb(var(--color-primary))] mb-2" size={24} />}
-                          >
-                            Prisma Cloud
-                          </Button>
-                        </>
-                      )}
-                      
-                      {selectedType === 'authentication' && (
-                        <>
-                          <Button 
-                            className="flex-col h-auto py-4"
-                            variant="outline"
-                            leftIcon={<User className="text-[rgb(var(--color-primary))] mb-2" size={24} />}
-                          >
-                            Okta
-                          </Button>
-                          <Button 
-                            className="flex-col h-auto py-4"
-                            variant="outline"
-                            leftIcon={<User className="text-[rgb(var(--color-primary))] mb-2" size={24} />}
-                          >
-                            Auth0
-                          </Button>
-                          <Button 
-                            className="flex-col h-auto py-4"
-                            variant="outline"
-                            leftIcon={<User className="text-[rgb(var(--color-primary))] mb-2" size={24} />}
-                          >
-                            Azure AD
-                          </Button>
-                          <Button 
-                            className="flex-col h-auto py-4"
-                            variant="outline"
-                            leftIcon={<Lock className="text-[rgb(var(--color-primary))] mb-2" size={24} />}
-                          >
-                            OneLogin
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                    
-                    <div className="border-t border-[rgb(var(--color-border))] pt-4">
-                      <Button 
-                        variant="primary"
-                        fullWidth
-                      >
-                        Continue
-                      </Button>
-                    </div>
+              <div>
+                <span>{selectedService.name}</span>
+                <p className="text-sm text-[rgb(var(--color-text-secondary))]">{selectedService.provider}</p>
+              </div>
+            </div>
+          }
+          footerContent={
+            <div className="flex justify-end space-x-3">
+              <Button 
+                variant="outline"
+                onClick={() => setShowAddModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button 
+                variant="primary"
+                onClick={() => {
+                  // In a real app, this would save the configuration
+                  // and make an API call to connect the service
+                  const newConnection: ServiceConnection = {
+                    id: `${selectedService.id}-${Date.now()}`,
+                    name: selectedService.name || '',
+                    type: selectedService.type as 'communication' | 'notification' | 'cloud' | 'authentication',
+                    provider: selectedService.provider || '',
+                    status: 'connected',
+                    lastConnected: new Date().toISOString(),
+                    icon: selectedService.icon || <User size={24} />,
+                    description: selectedService.description || '',
+                    connectedAccount: 'Connected account',
+                    workspaces: ['Default workspace'],
+                    comingSoon: selectedService.comingSoon
+                  };
+                  setConnections(prev => [...prev, newConnection]);
+                  setShowAddModal(false);
+                }}
+              >
+                Connect Service
+              </Button>
+            </div>
+          }
+        >
+          <div className="space-y-6">
+            <div>
+              <h3 className="font-medium mb-2">Configuration Settings</h3>
+              <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-4">
+                Configure your {selectedService.name} integration
+              </p>
+            </div>
+            
+            {/* Configuration fields */}
+            <div className="space-y-4">
+              {selectedService.type === 'authentication' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">Client ID</label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgb(var(--color-card))] text-[rgb(var(--color-text))]"
+                      placeholder="Enter client ID"
+                    />
                   </div>
-                )}
+                  <div>
+                    <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">Client Secret</label>
+                    <input
+                      type="password"
+                      className="w-full p-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgb(var(--color-card))] text-[rgb(var(--color-text))]"
+                      placeholder="Enter client secret"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">Redirect URI</label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-[rgb(var(--color-border))] bg-[rgba(var(--color-card-muted),0.3)] rounded-md text-[rgb(var(--color-text))]"
+                      value="https://app.everyst.com/auth/callback"
+                      disabled
+                    />
+                    <p className="mt-1 text-xs text-[rgb(var(--color-text-secondary))]">
+                      Use this URL in your {selectedService.name} application settings
+                    </p>
+                  </div>
+                </>
+              )}
+              
+              {selectedService.type === 'communication' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">Webhook URL</label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgb(var(--color-card))] text-[rgb(var(--color-text))]"
+                      placeholder="Enter webhook URL"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">API Key</label>
+                    <input
+                      type="password"
+                      className="w-full p-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgb(var(--color-card))] text-[rgb(var(--color-text))]"
+                      placeholder="Enter API key"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">Channel</label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgb(var(--color-card))] text-[rgb(var(--color-text))]"
+                      placeholder="Enter channel name"
+                    />
+                  </div>
+                </>
+              )}
+              
+              {selectedService.type === 'notification' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">Notification Endpoint</label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgb(var(--color-card))] text-[rgb(var(--color-text))]"
+                      placeholder="Enter endpoint URL"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">API Key</label>
+                    <input
+                      type="password"
+                      className="w-full p-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgb(var(--color-card))] text-[rgb(var(--color-text))]"
+                      placeholder="Enter API key"
+                    />
+                  </div>
+                </>
+              )}
+              
+              {selectedService.type === 'cloud' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">Access Key</label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgb(var(--color-card))] text-[rgb(var(--color-text))]"
+                      placeholder="Enter access key"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">Secret Key</label>
+                    <input
+                      type="password"
+                      className="w-full p-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgb(var(--color-card))] text-[rgb(var(--color-text))]"
+                      placeholder="Enter secret key"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">Region</label>
+                    <select
+                      className="w-full p-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgb(var(--color-card))] text-[rgb(var(--color-text))]"
+                    >
+                      <option value="">Select region</option>
+                      <option value="us-east-1">US East (N. Virginia)</option>
+                      <option value="us-west-1">US West (N. California)</option>
+                      <option value="eu-west-1">EU (Ireland)</option>
+                      <option value="ap-southeast-1">Asia Pacific (Singapore)</option>
+                    </select>
+                  </div>
+                </>
+              )}
+
+              <div className="pt-2">
+                <label className="flex items-center">
+                  <input 
+                    type="checkbox" 
+                    className="mr-2 w-4 h-4 text-[rgb(var(--color-primary))]" 
+                  />
+                  <span className="text-sm">Enable notifications from this integration</span>
+                </label>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 };
