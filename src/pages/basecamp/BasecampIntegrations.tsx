@@ -66,20 +66,11 @@ const predefinedServices = {
 // Custom Coming Soon Banner component
 const ComingSoonBanner: React.FC = () => {
   return (
-    <div className="absolute top-0 right-0 z-10 w-full h-full">
-      {/* Overlay effect */}
-      <div className="absolute inset-0 bg-[rgba(0,0,0,0.03)] backdrop-blur-[1px] rounded-lg pointer-events-none"></div>
-      
-      {/* Ribbon */}
-      <div className="absolute -top-2 -right-2 z-20">
-        <div className="bg-gradient-to-r from-[rgb(var(--color-warning))] to-[rgb(var(--color-primary))] text-white font-bold py-1 px-6 shadow-lg transform rotate-[20deg]">
-          <div className="flex items-center gap-1">
-            <Clock size={14} className="animate-pulse" />
-            <span className="text-xs tracking-wider">COMING SOON</span>
-          </div>
-        </div>
-        {/* Shadow effect for the ribbon */}
-        <div className="absolute -bottom-1 right-0 w-2 h-2 bg-[rgba(0,0,0,0.2)] rounded-sm"></div>
+    <div className="absolute top-0 right-0 z-20" style={{ transform: 'translateY(-40%) translateX(30%) rotate(32deg)' }}>
+      <div className="flex items-center gap-1 bg-[#2EAAE1] text-white font-bold py-1 px-8 shadow-lg rounded-md border border-white/10"
+        style={{ minWidth: 160, boxShadow: '0 2px 8px 0 rgba(46,170,225,0.15)', borderTopLeftRadius: 6, borderTopRightRadius: 12, borderBottomRightRadius: 6, borderBottomLeftRadius: 12 }}>
+        <Clock size={12} className="opacity-80 mr-1" />
+        <span className="text-[10px] tracking-wider uppercase">Coming Soon</span>
       </div>
     </div>
   );
