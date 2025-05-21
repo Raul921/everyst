@@ -6,8 +6,6 @@
 
 Everyst is a server monitoring and security management platform built with React, TypeScript, and Django. It aims to provide a modern, responsive interface for monitoring system metrics and security.
 
-![Summit Dashboard Example](./public/images/everyst-example.jpg)
-
 **Important note:** This project is currently in **Alpha 1** stage. It's very much a work in progress, and I'm sharing it early to gather feedback and collaborate with others interested in this space.
 
 ## Why Everyst Exists
