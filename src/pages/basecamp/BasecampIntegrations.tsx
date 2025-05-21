@@ -20,8 +20,7 @@ import {
   Settings,
   Lock,
   User,
-  Clock,
-  Star
+  Clock
 } from 'lucide-react';
 
 // Updated types for our integrations to focus on identity and notification integrations
@@ -67,7 +66,7 @@ const predefinedServices = {
 // Custom Coming Soon Banner component
 const ComingSoonBanner: React.FC = () => {
   return (
-    <div className="absolute top-0 right-0 z-10 overflow-hidden w-full h-full">
+    <div className="absolute top-0 right-0 z-10 w-full h-full">
       {/* Overlay effect */}
       <div className="absolute inset-0 bg-[rgba(0,0,0,0.03)] backdrop-blur-[1px] rounded-lg pointer-events-none"></div>
       
@@ -81,11 +80,6 @@ const ComingSoonBanner: React.FC = () => {
         </div>
         {/* Shadow effect for the ribbon */}
         <div className="absolute -bottom-1 right-0 w-2 h-2 bg-[rgba(0,0,0,0.2)] rounded-sm"></div>
-      </div>
-      
-      {/* Star decoration */}
-      <div className="absolute bottom-2 left-2">
-        <Star size={16} className="text-[rgb(var(--color-warning))] opacity-50 animate-pulse" />
       </div>
     </div>
   );
@@ -244,7 +238,7 @@ export const BasecampIntegrations: React.FC = () => {
                   return (
                     <Card 
                       key={service.id}
-                      className={`hover:border-[rgb(var(--color-primary-light))] transition-colors duration-300 flex flex-col relative ${service.comingSoon ? 'overflow-hidden' : ''}`}
+                      className={`hover:border-[rgb(var(--color-primary-light))] transition-colors duration-300 flex flex-col relative`}
                     >
                       {service.comingSoon && <ComingSoonBanner />}
                       <div className="flex justify-between items-start relative z-1">
@@ -298,7 +292,7 @@ export const BasecampIntegrations: React.FC = () => {
                           disabled={service.comingSoon}
                           leftIcon={existingConnection ? <Settings size={14} /> : <ExternalLink size={14} />}
                         >
-                          {existingConnection ? 'Configure' : (service.comingSoon ? 'Coming Soon' : 'Connect')}
+                          {existingConnection ? 'Configure' : 'Connect'}
                         </Button>
                       </div>
                     </Card>
@@ -335,7 +329,7 @@ export const BasecampIntegrations: React.FC = () => {
                   return (
                     <Card 
                       key={service.id}
-                      className={`hover:border-[rgb(var(--color-primary-light))] transition-colors duration-300 flex flex-col relative ${service.comingSoon ? 'overflow-hidden' : ''}`}
+                      className={`hover:border-[rgb(var(--color-primary-light))] transition-colors duration-300 flex flex-col relative`}
                     >
                       {service.comingSoon && <ComingSoonBanner />}
                       <div className="flex justify-between items-start relative z-1">
@@ -389,7 +383,7 @@ export const BasecampIntegrations: React.FC = () => {
                           disabled={service.comingSoon}
                           leftIcon={existingConnection ? <Settings size={14} /> : <ExternalLink size={14} />}
                         >
-                          {existingConnection ? 'Configure' : (service.comingSoon ? 'Coming Soon' : 'Connect')}
+                          {existingConnection ? 'Configure' : 'Connect'}
                         </Button>
                       </div>
                     </Card>
@@ -422,7 +416,7 @@ export const BasecampIntegrations: React.FC = () => {
                   return (
                     <Card 
                       key={service.id}
-                      className={`hover:border-[rgb(var(--color-primary-light))] transition-colors duration-300 flex flex-col relative ${service.comingSoon ? 'overflow-hidden' : ''}`}
+                      className={`hover:border-[rgb(var(--color-primary-light))] transition-colors duration-300 flex flex-col relative`}
                     >
                       {service.comingSoon && <ComingSoonBanner />}
                       <div className="flex justify-between items-start relative z-1">
@@ -476,7 +470,7 @@ export const BasecampIntegrations: React.FC = () => {
                           disabled={service.comingSoon}
                           leftIcon={existingConnection ? <Settings size={14} /> : <ExternalLink size={14} />}
                         >
-                          {existingConnection ? 'Configure' : (service.comingSoon ? 'Coming Soon' : 'Connect')}
+                          {existingConnection ? 'Configure' : 'Connect'}
                         </Button>
                       </div>
                     </Card>
@@ -509,7 +503,7 @@ export const BasecampIntegrations: React.FC = () => {
                   return (
                     <Card 
                       key={service.id}
-                      className={`hover:border-[rgb(var(--color-primary-light))] transition-colors duration-300 flex flex-col relative ${service.comingSoon ? 'overflow-hidden' : ''}`}
+                      className={`hover:border-[rgb(var(--color-primary-light))] transition-colors duration-300 flex flex-col relative`}
                     >
                       {service.comingSoon && <ComingSoonBanner />}
                       <div className="flex justify-between items-start relative z-1">
@@ -563,7 +557,7 @@ export const BasecampIntegrations: React.FC = () => {
                           disabled={service.comingSoon}
                           leftIcon={existingConnection ? <Settings size={14} /> : <ExternalLink size={14} />}
                         >
-                          {existingConnection ? 'Configure' : (service.comingSoon ? 'Coming Soon' : 'Connect')}
+                          {existingConnection ? 'Configure' : 'Connect'}
                         </Button>
                       </div>
                     </Card>
@@ -596,7 +590,7 @@ export const BasecampIntegrations: React.FC = () => {
                   return (
                     <Card 
                       key={service.id}
-                      className={`hover:border-[rgb(var(--color-primary-light))] transition-colors duration-300 flex flex-col relative ${service.comingSoon ? 'overflow-hidden' : ''}`}
+                      className={`hover:border-[rgb(var(--color-primary-light))] transition-colors duration-300 flex flex-col relative`}
                     >
                       {service.comingSoon && <ComingSoonBanner />}
                       <div className="flex justify-between items-start relative z-1">
@@ -650,7 +644,7 @@ export const BasecampIntegrations: React.FC = () => {
                           disabled={service.comingSoon}
                           leftIcon={existingConnection ? <Settings size={14} /> : <ExternalLink size={14} />}
                         >
-                          {existingConnection ? 'Configure' : (service.comingSoon ? 'Coming Soon' : 'Connect')}
+                          {existingConnection ? 'Configure' : 'Connect'}
                         </Button>
                       </div>
                     </Card>
