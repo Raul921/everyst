@@ -123,13 +123,13 @@ class APIActivityMiddleware:
                 
                 try:
                     # Log the activity to the database if the model is available
-                    from api.models.activity import UserActivity
+                    from api.models.activity import ApplicationLog
                     
                     # Determine action type based on path and method
                     action = self._determine_action_type(request)
                     
                     # Log to database
-                    UserActivity.log_activity(
+                    ApplicationLog.log_activity(
                         user=request.user if request.user.is_authenticated else None,
                         action=action,
                         ip_address=ip,
