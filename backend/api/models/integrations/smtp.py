@@ -12,8 +12,8 @@ class SMTPConfiguration(BaseModel):
     """
     host = models.CharField(max_length=255, help_text="SMTP server hostname")
     port = models.IntegerField(default=587, help_text="SMTP server port")
-    username = models.CharField(max_length=255, help_text="SMTP username/email")
-    password = models.CharField(max_length=255, help_text="SMTP password")
+    username = models.CharField(max_length=255, blank=True, null=True, help_text="SMTP username/email")
+    password = models.CharField(max_length=255, blank=True, null=True, help_text="SMTP password")
     use_tls = models.BooleanField(default=True, help_text="Use TLS encryption")
     from_email = models.EmailField(help_text="Default sender email address")
     from_name = models.CharField(max_length=255, blank=True, null=True, help_text="Default sender name")
