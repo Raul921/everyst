@@ -53,6 +53,14 @@ const getAuthToken = (): string => {
 export const fetchActiveSMTPConfig = async (): Promise<SMTPConfig | undefined> => {
   try {
     const token = getAuthToken();
+    
+    if (!token) {
+      console.warn('No auth token found when fetching SMTP config');
+      return undefined;
+    }
+    
+    console.log('Fetching active SMTP config with token');
+    
     const response = await fetch(`${getApiUrl()}/integrations/smtp/active/`, {
       method: 'GET',
       headers: {
@@ -61,18 +69,27 @@ export const fetchActiveSMTPConfig = async (): Promise<SMTPConfig | undefined> =
       }
     });
 
+    console.log('SMTP active endpoint response status:', response.status);
+
     if (!response.ok) {
       if (response.status === 404) {
         // No active configuration found
+        console.log('No active SMTP config found');
         return undefined;
       }
+      
+      // Try to get more error details
+      const errorText = await response.text().catch(() => response.statusText);
+      console.error('SMTP config fetch error:', errorText);
       throw new Error(`Failed to fetch SMTP configuration: ${response.statusText}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log('Successfully fetched SMTP config:', data.id);
+    return data;
   } catch (error) {
     console.error('Error fetching SMTP configuration:', error);
-    throw error;
+    return undefined; // Return undefined instead of throwing to avoid crashing the UI
   }
 };
 
@@ -110,10 +127,17 @@ export const fetchAllSMTPConfigs = async (): Promise<SMTPConfig[]> => {
 export const saveSMTPConfig = async (config: SMTPConfig): Promise<SMTPConfig> => {
   try {
     const token = getAuthToken();
+    
+    if (!token) {
+      throw new Error('No authentication token available');
+    }
+    
     const isUpdate = !!config.id;
     const url = isUpdate 
       ? `${getApiUrl()}/integrations/smtp/${config.id}/`
       : `${getApiUrl()}/integrations/smtp/`;
+    
+    console.log(`${isUpdate ? 'Updating' : 'Creating'} SMTP config at ${url}`);
     
     const response = await fetch(url, {
       method: isUpdate ? 'PUT' : 'POST',
@@ -124,11 +148,25 @@ export const saveSMTPConfig = async (config: SMTPConfig): Promise<SMTPConfig> =>
       body: JSON.stringify(config)
     });
 
+    console.log('SMTP save response status:', response.status);
+
     if (!response.ok) {
-      throw new Error(`Failed to save SMTP configuration: ${response.statusText}`);
+      const errorText = await response.text().catch(() => response.statusText);
+      console.error('Error saving SMTP config:', errorText);
+      
+      try {
+        // Try to parse as JSON if possible
+        const errorData = JSON.parse(errorText);
+        console.error('Parsed error data:', errorData);
+        throw new Error(`Failed to save SMTP configuration: ${JSON.stringify(errorData)}`);
+      } catch {
+        throw new Error(`Failed to save SMTP configuration: ${response.statusText || errorText}`);
+      }
     }
 
-    return await response.json();
+    const savedConfig = await response.json();
+    console.log('Successfully saved SMTP config with ID:', savedConfig.id);
+    return savedConfig;
   } catch (error) {
     console.error('Error saving SMTP configuration:', error);
     throw error;
@@ -144,6 +182,16 @@ export const saveSMTPConfig = async (config: SMTPConfig): Promise<SMTPConfig> =>
 export const testSMTPConnection = async (configId: string, testEmail: string): Promise<TestSMTPResponse> => {
   try {
     const token = getAuthToken();
+    
+    if (!token) {
+      return {
+        success: false,
+        message: 'No authentication token available'
+      };
+    }
+    
+    console.log(`Testing SMTP connection with ID ${configId}, sending to ${testEmail}`);
+    
     const response = await fetch(`${getApiUrl()}/integrations/smtp/${configId}/test_connection/`, {
       method: 'POST',
       headers: {
@@ -153,17 +201,28 @@ export const testSMTPConnection = async (configId: string, testEmail: string): P
       body: JSON.stringify({ test_email: testEmail })
     });
 
-    const result = await response.json();
+    console.log('SMTP test response status:', response.status);
+    const result = await response.text();
     
-    if (response.ok) {
-      return { 
-        success: true, 
-        message: result.message || 'Email test was successful'
-      };
-    } else {
-      return { 
-        success: false, 
-        message: result.error || 'Failed to send test email'
+    try {
+      const parsedResult = JSON.parse(result);
+      
+      if (response.ok) {
+        return { 
+          success: true, 
+          message: parsedResult.message || 'Email test was successful'
+        };
+      } else {
+        return { 
+          success: false, 
+          message: parsedResult.error || 'Failed to send test email'
+        };
+      }
+    } catch {
+      console.error('Error parsing SMTP test response:', result);
+      return {
+        success: false,
+        message: `Invalid response from server: ${response.statusText}`
       };
     }
   } catch (error) {

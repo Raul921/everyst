@@ -200,14 +200,17 @@ export const BasecampIntegrations: React.FC = () => {
     }
   };
 
-  // Sample data - this would come from API in a real app
+  // Load SMTP configuration on component mount
   useEffect(() => {
-    // Simulate API delay
     const fetchData = async () => {
       setIsLoading(true);
       try {
+        console.log('BasecampIntegrations: Fetching active SMTP config');
+        
         // Fetch SMTP configuration if it exists
         const config = await fetchActiveSMTPConfig();
+        
+        console.log('BasecampIntegrations: Fetch result:', config ? 'Config found' : 'No config found');
         
         if (config) {
           // Update SMTP configuration
@@ -227,6 +230,8 @@ export const BasecampIntegrations: React.FC = () => {
               config: config
             }
           ]);
+        } else {
+          console.log('No active SMTP config found - starting with empty state');
         }
       } catch (error) {
         console.error('Error fetching SMTP configuration:', error);
