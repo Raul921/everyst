@@ -19,6 +19,9 @@ from .system import SystemMetrics, Alert, SecurityStatus
 # Notification model
 from .notification import Notification
 
+# Integration models
+from .integrations import SMTPConfiguration
+
 # Define what's exported when doing 'from api.models import *'
 __all__ = [
     'BaseModel',
@@ -32,4 +35,5 @@ __all__ = [
     'Alert',
     'SecurityStatus',
     'Notification',
+    'SMTPConfiguration',
 ]

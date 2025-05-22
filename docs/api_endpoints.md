@@ -325,3 +325,48 @@ This document provides a comprehensive overview of the Everyst API endpoints, th
 - **Status Codes:**
   - 200: Service is healthy
   - 503: Service unhealthy
+
+# SMTP Email Integration API
+
+## Endpoints
+
+### List/Create/Update/Delete SMTP Config
+- `GET /api/integrations/smtp/` — List all SMTP configs
+- `POST /api/integrations/smtp/` — Create new SMTP config
+- `PUT /api/integrations/smtp/{id}/` — Update SMTP config
+- `DELETE /api/integrations/smtp/{id}/` — Delete SMTP config
+
+### Test SMTP Connection
+- `POST /api/integrations/smtp/{id}/test_connection/` — Test SMTP config and send a test email to the configured `from_email` address. Returns `{ success: true/false, message: string }`.
+
+## Notes
+- Only one SMTP config can be active at a time. Attempting to activate another will return a validation error.
+- Password is write-only and never returned in API responses.
+- Test connection endpoint returns clear success/error messages.
+
+## Example Request/Response
+
+#### Test Connection (Success)
+```
+POST /api/integrations/smtp/3/test_connection/
+{
+  "success": true,
+  "message": "SMTP connection and test email sent successfully."
+}
+```
+
+#### Test Connection (Failure)
+```
+POST /api/integrations/smtp/3/test_connection/
+{
+  "success": false,
+  "message": "SMTP test failed: [error details]"
+}
+```
+
+## Frontend
+- Save/Test buttons are enabled only when all required fields are filled and not loading.
+- Error/success messages are shown clearly in the modal.
+
+## Security
+- SMTP password is never exposed in API responses.

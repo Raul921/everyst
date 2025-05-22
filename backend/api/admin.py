@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import SystemMetrics, Alert, SecurityStatus, NetworkDevice, NetworkConnection, NetworkScan, Notification, User
+from .models import SystemMetrics, Alert, SecurityStatus, NetworkDevice, NetworkConnection, NetworkScan, Notification, User, SMTPConfiguration
 
 @admin.register(SystemMetrics)
 class SystemMetricsAdmin(admin.ModelAdmin):
@@ -51,3 +51,10 @@ class NotificationAdmin(admin.ModelAdmin):
     list_filter = ('type', 'is_read', 'is_system')
     search_fields = ('title', 'message')
     readonly_fields = ('timestamp',)
+
+@admin.register(SMTPConfiguration)
+class SMTPConfigurationAdmin(admin.ModelAdmin):
+    list_display = ('host', 'port', 'username', 'from_email', 'is_active', 'last_tested')
+    list_filter = ('is_active', 'use_tls')
+    search_fields = ('host', 'username', 'from_email')
+    readonly_fields = ('created_at', 'updated_at', 'last_tested')

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Card, 
   Panel, 
@@ -20,8 +20,12 @@ import {
   Settings,
   Lock,
   User,
-  Clock
+  Clock,
+  CheckCircle
 } from 'lucide-react';
+
+// Import SMTP service
+import { fetchActiveSMTPConfig, saveSMTPConfig, testSMTPConnection as testSMTP, type SMTPConfig as SMTPConfigType } from '../../services/integrations/smtpService';
 
 // Updated types for our integrations to focus on identity and notification integrations
 interface ServiceConnection {
@@ -36,6 +40,7 @@ interface ServiceConnection {
   workspaces?: string[];
   description?: string;
   comingSoon?: boolean;
+  config?: unknown;
 }
 
 // Predefined services by category
@@ -90,16 +95,143 @@ export const BasecampIntegrations: React.FC = () => {
   // Filter state
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
 
+  // SMTP configuration state
+  const [smtpConfig, setSmtpConfig] = useState<SMTPConfigType>({
+    host: '',
+    port: 587,
+    username: '',
+    password: '',
+    use_tls: true,
+    from_email: '',
+    from_name: '',
+    is_active: true
+  });
+  
+  // Test email state
+  const [testEmail, setTestEmail] = useState<string>('');
+  const [testingEmail, setTestingEmail] = useState<boolean>(false);
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  // SMTP modal Save/Test button enable/disable logic
+  const isSmtpSaveDisabled = !smtpConfig.host || !smtpConfig.port || !smtpConfig.username || !smtpConfig.password || !smtpConfig.from_email || testingEmail;
+  const isSmtpTestDisabled = !smtpConfig.host || !smtpConfig.port || !smtpConfig.username || !smtpConfig.password || !smtpConfig.from_email || testingEmail;
+
+  // Handle SMTP form input changes
+  const handleSMTPChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    
+    if (type === 'checkbox') {
+      const target = e.target as HTMLInputElement;
+      setSmtpConfig(prev => ({ ...prev, [name]: target.checked }));
+    } else {
+      setSmtpConfig(prev => ({ 
+        ...prev, 
+        [name]: type === 'number' ? parseInt(value, 10) || 0 : value 
+      }));
+    }
+  };
+
+  // Handle SMTP test connection
+  const handleTestSMTPConnection = async () => {
+    if (!smtpConfig.id || !testEmail) return;
+    
+    setTestingEmail(true);
+    setTestResult(null);
+    
+    try {
+      const result = await testSMTP(smtpConfig.id, testEmail);
+      setTestResult(result);
+    } catch (error) {
+      setTestResult({
+        success: false,
+        message: error instanceof Error ? error.message : 'An unknown error occurred'
+      });
+    } finally {
+      setTestingEmail(false);
+    }
+  };
+
+  // Handle saving SMTP configuration
+  const handleSaveSMTPConfig = async () => {
+    try {
+      const savedConfig = await saveSMTPConfig(smtpConfig);
+      
+      // Update state with the saved config (which includes an ID if it was created)
+      setSmtpConfig(savedConfig);
+      
+      // If this is a new connection, add it to the connections list
+      const existingConnectionIndex = connections.findIndex(
+        conn => conn.id === `email-${savedConfig.id}`
+      );
+      
+      if (existingConnectionIndex >= 0) {
+        // Update existing connection
+        const updatedConnections = [...connections];
+        updatedConnections[existingConnectionIndex] = {
+          ...updatedConnections[existingConnectionIndex],
+          status: 'connected',
+          lastConnected: new Date().toISOString(),
+          config: savedConfig
+        };
+        setConnections(updatedConnections);
+      } else {
+        // Add new connection
+        setConnections(prev => [
+          ...prev,
+          {
+            id: `email-${savedConfig.id}`,
+            name: 'Email Notifications',
+            type: 'notification',
+            provider: 'SMTP',
+            status: 'connected',
+            lastConnected: new Date().toISOString(),
+            icon: <Bell size={24} />,
+            description: 'Email alerts and notifications',
+            config: savedConfig
+          }
+        ]);
+      }
+      
+      // Close modal
+      setShowAddModal(false);
+    } catch (error) {
+      console.error('Error saving SMTP configuration:', error);
+    }
+  };
+
   // Sample data - this would come from API in a real app
   useEffect(() => {
     // Simulate API delay
     const fetchData = async () => {
-      // In a real app, this would be an API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Initialize with empty connections array
-      setConnections([]);
-      setIsLoading(false);
+      setIsLoading(true);
+      try {
+        // Fetch SMTP configuration if it exists
+        const config = await fetchActiveSMTPConfig();
+        
+        if (config) {
+          // Update SMTP configuration
+          setSmtpConfig(config);
+          
+          // Add to connections list
+          setConnections([
+            {
+              id: `email-${config.id}`,
+              name: 'Email Notifications',
+              type: 'notification',
+              provider: 'SMTP',
+              status: 'connected',
+              lastConnected: config.updated_at || null,
+              icon: <Bell size={24} />,
+              description: 'Email alerts and notifications',
+              config: config
+            }
+          ]);
+        }
+      } catch (error) {
+        console.error('Error fetching SMTP configuration:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
     
     fetchData();
@@ -830,7 +962,145 @@ export const BasecampIntegrations: React.FC = () => {
                 </>
               )}
               
-              {selectedService.type === 'notification' && (
+              {selectedService.type === 'notification' && selectedService.id === 'email' && (
+                <>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">SMTP Server</label>
+                      <input
+                        type="text"
+                        name="host"
+                        value={smtpConfig.host}
+                        onChange={handleSMTPChange}
+                        className="w-full p-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgb(var(--color-card))] text-[rgb(var(--color-text))]"
+                        placeholder="smtp.example.com"
+                      />
+                    </div>
+                    <div className="flex space-x-4">
+                      <div className="flex-1">
+                        <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">Port</label>
+                        <input
+                          type="number"
+                          name="port"
+                          value={smtpConfig.port}
+                          onChange={handleSMTPChange}
+                          className="w-full p-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgb(var(--color-card))] text-[rgb(var(--color-text))]"
+                          placeholder="587"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">Security</label>
+                        <select
+                          name="use_tls"
+                          value={smtpConfig.use_tls ? "tls" : "none"}
+                          onChange={(e) => setSmtpConfig(prev => ({
+                            ...prev,
+                            use_tls: e.target.value === "tls"
+                          }))}
+                          className="w-full p-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgb(var(--color-card))] text-[rgb(var(--color-text))]"
+                        >
+                          <option value="tls">TLS</option>
+                          <option value="none">None</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">Username</label>
+                      <input
+                        type="text"
+                        name="username"
+                        value={smtpConfig.username}
+                        onChange={handleSMTPChange}
+                        className="w-full p-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgb(var(--color-card))] text-[rgb(var(--color-text))]"
+                        placeholder="username@example.com"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">Password</label>
+                      <input
+                        type="password"
+                        name="password"
+                        value={smtpConfig.password}
+                        onChange={handleSMTPChange}
+                        className="w-full p-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgb(var(--color-card))] text-[rgb(var(--color-text))]"
+                        placeholder="••••••••••••"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">From Email</label>
+                      <input
+                        type="email"
+                        name="from_email"
+                        value={smtpConfig.from_email}
+                        onChange={handleSMTPChange}
+                        className="w-full p-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgb(var(--color-card))] text-[rgb(var(--color-text))]"
+                        placeholder="notifications@yourcompany.com"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">From Name (Optional)</label>
+                      <input
+                        type="text"
+                        name="from_name"
+                        value={smtpConfig.from_name}
+                        onChange={handleSMTPChange}
+                        className="w-full p-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgb(var(--color-card))] text-[rgb(var(--color-text))]"
+                        placeholder="Everyst Notifications"
+                      />
+                    </div>
+                    <div className="pt-2 border-t border-[rgb(var(--color-border))] mt-4">
+                      <p className="text-sm text-[rgb(var(--color-text-secondary))] mb-3">
+                        Test your SMTP configuration by sending a test email:
+                      </p>
+                      <div className="flex space-x-2">
+                        <input
+                          type="email"
+                          value={testEmail}
+                          onChange={(e) => setTestEmail(e.target.value)}
+                          className="flex-1 p-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgb(var(--color-card))] text-[rgb(var(--color-text))]"
+                          placeholder="Enter test email address"
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleTestSMTPConnection}
+                          disabled={isSmtpTestDisabled}
+                        >
+                          {testingEmail ? <Loader size={16} className="animate-spin" /> : "Send Test"}
+                        </Button>
+                      </div>
+                      {testResult && (
+                        <div className={`mt-2 p-2 rounded text-sm ${testResult.success ? 'bg-[rgba(var(--color-success),0.1)] text-[rgb(var(--color-success))]' : 'bg-[rgba(var(--color-error),0.1)] text-[rgb(var(--color-error))]'}`}>
+                          {testResult.success ? (
+                            <div className="flex items-center">
+                              <Check size={16} className="mr-2" />
+                              {testResult.message}
+                            </div>
+                          ) : (
+                            <div className="flex items-center">
+                              <AlertTriangle size={16} className="mr-2" />
+                              {testResult.message}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center pt-2">
+                      <input 
+                        type="checkbox" 
+                        id="make-default"
+                        name="is_active"
+                        checked={smtpConfig.is_active}
+                        onChange={handleSMTPChange}
+                        className="mr-2 w-4 h-4 text-[rgb(var(--color-primary))]" 
+                      />
+                      <label htmlFor="make-default" className="text-sm">Set as default email configuration</label>
+                    </div>
+                  </div>
+                </>
+              )}
+              
+              {selectedService.type === 'notification' && selectedService.id !== 'email' && (
                 <>
                   <div>
                     <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">Notification Endpoint</label>

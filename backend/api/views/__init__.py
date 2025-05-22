@@ -45,6 +45,9 @@ from .system import (
 # Notification views
 from .notification import NotificationViewSet
 
+# Integration views
+from .integrations.smtp import SMTPConfigurationViewSet
+
 # Define __all__ to specify what 'from api.views import *' should import,
 # and also for clarity on what this package exports.
 __all__ = [
@@ -83,5 +86,8 @@ __all__ = [
     'get_current_metrics',
     
     # Notification views
-    'NotificationViewSet'
+    'NotificationViewSet',
+    
+    # Integration views
+    'SMTPConfigurationViewSet'
 ]

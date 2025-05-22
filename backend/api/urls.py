@@ -26,6 +26,9 @@ from .views import (
     whois_tool, ssl_check_tool, netstat_tool, ip_route_tool, tcpdump_tool
 )
 
+# Import integration views
+from .views.integrations import SMTPConfigurationViewSet
+
 # Import our custom token views
 from .views.auth_token import TokenObtainPairView, TokenRefreshView
 from .views.logout import LogoutView, LogoutAllView
@@ -42,6 +45,9 @@ router.register(r'notifications', NotificationViewSet, basename='notification')
 router.register(r'network/devices', NetworkDeviceViewSet)
 router.register(r'network/connections', NetworkConnectionViewSet)
 router.register(r'network/scans', NetworkScanViewSet)
+
+# Integration routes
+router.register(r'integrations/smtp', SMTPConfigurationViewSet)
 
 urlpatterns = [
     path('health/', HealthCheckView.as_view(), name='health-check'),
