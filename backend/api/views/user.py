@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from api.serializers.user import UserSerializer, UserRoleSerializer
 from api.models.role import UserRole
 from api.permissions import CanManageUsers
+from ..models import ApplicationLog
 
 User = get_user_model()
 
@@ -95,6 +96,39 @@ class UserViewSet(viewsets.ModelViewSet):
         # Continue with the standard create process
         return super().create(request, *args, **kwargs)
     
+    def perform_create(self, serializer):
+        user = serializer.save()
+        ApplicationLog.log_activity(
+            user=self.request.user,
+            action='user_create',
+            object_type='User',
+            object_id=str(user.id),
+            object_name=user.username,
+            details={'message': f'User {user.username} created by {self.request.user.username}.'}
+        )
+
+    def perform_update(self, serializer):
+        user = serializer.save()
+        ApplicationLog.log_activity(
+            user=self.request.user,
+            action='user_update',
+            object_type='User',
+            object_id=str(user.id),
+            object_name=user.username,
+            details={'message': f'User {user.username} updated by {self.request.user.username}.'}
+        )
+
+    def perform_destroy(self, instance):
+        ApplicationLog.log_activity(
+            user=self.request.user,
+            action='user_delete',
+            object_type='User',
+            object_id=str(instance.id),
+            object_name=instance.username,
+            details={'message': f'User {instance.username} deleted by {self.request.user.username}.'}
+        )
+        instance.delete()
+
     @action(detail=True, methods=['post'])
     def set_role(self, request, pk=None):
         """Set the role for a user"""
@@ -168,6 +202,15 @@ class UserViewSet(viewsets.ModelViewSet):
                 
             user.save()
             
+            ApplicationLog.log_activity(
+                user=request.user,
+                action='user_role_change',
+                object_type='User',
+                object_id=str(user.id),
+                object_name=user.username,
+                details={'message': f'Role changed for user {user.username} to {role.name}.'}
+            )
+            
             # Return updated user data
             serializer = self.get_serializer(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -201,6 +244,15 @@ class UserViewSet(viewsets.ModelViewSet):
         # Update the password
         user.set_password(new_password)
         user.save()
+        
+        ApplicationLog.log_activity(
+            user=request.user, # Can be self or other user if admin
+            action='auth_password_change',
+            object_type='User',
+            object_id=str(user.id),
+            object_name=user.username,
+            details={'message': f'Password changed for user {user.username}.'}
+        )
         
         return Response({"detail": "Password changed successfully"}, status=status.HTTP_200_OK)
     

@@ -20,7 +20,7 @@ from .system import SystemMetrics, Alert, SecurityStatus
 from .notification import Notification
 
 # Activity-related models
-from .activity import UserActivity, ApplicationLog
+from .activity import ApplicationLog
 
 # Define what's exported when doing 'from api.models import *'
 __all__ = [
@@ -35,6 +35,5 @@ __all__ = [
     'Alert',
     'SecurityStatus',
     'Notification',
-    'UserActivity',
     'ApplicationLog',
 ]

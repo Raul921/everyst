@@ -141,35 +141,40 @@ class ApplicationLog(models.Model):
         """
         details = details or {}
         
+        # Determine category from action if not provided
+        derived_category = category
+        if derived_category is None:
+            if action.startswith('auth_'):
+                derived_category = 'auth'
+            elif action.startswith('user_'):
+                derived_category = 'user'
+            elif action.startswith('security_'):
+                derived_category = 'security'
+            elif action.startswith('system_'):
+                derived_category = 'system'
+            elif action.startswith('network_'):
+                derived_category = 'network'
+            elif action == 'api_access':
+                derived_category = 'api'
+            elif action.startswith('admin_'):
+                derived_category = 'admin'
+            elif action.startswith('data_'):
+                derived_category = 'data'
+            else:
+                derived_category = 'system'  # Default category
+        
         # Skip logging for localhost API access when category is 'api'
-        if category == 'api' and ip_address in ['127.0.0.1', 'localhost', '::1']:
+        if derived_category == 'api' and ip_address in ['127.0.0.1', 'localhost', '::1']:
             return None
         
-        # Determine category from action if not provided
-        if category is None:
-            if action.startswith('auth_'):
-                category = 'auth'
-            elif action.startswith('user_'):
-                category = 'user'
-            elif action.startswith('security_'):
-                category = 'security'
-            elif action.startswith('system_'):
-                category = 'system'
-            elif action.startswith('network_'):
-                category = 'network'
-            elif action == 'api_access':
-                category = 'api'
-            elif action.startswith('admin_'):
-                category = 'admin'
-            elif action.startswith('data_'):
-                category = 'data'
-            else:
-                category = 'system'  # Default category
+        # Skip logging for api_access actions
+        if action == 'api_access':
+            return None
         
         # Create log record
         log = cls.objects.create(
             user=user,
-            category=category,
+            category=derived_category, # Use derived_category
             action=action,
             ip_address=ip_address,
             user_agent=user_agent,

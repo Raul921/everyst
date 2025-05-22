@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0004_useractivity'),
+        ('api', '0003_loginattempt_remove_user_is_temporary_password_and_more'),
     ]
 
     operations = [
