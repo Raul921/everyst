@@ -79,6 +79,18 @@ class SMTPConfigurationViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
     
+    @action(detail=False, methods=['get'], url_path='active', permission_classes=[])
+    def active(self, request):
+        """
+        Return the currently active SMTP configuration, or 404 if none exists.
+        No authentication required for this endpoint.
+        """
+        config = SMTPConfiguration.objects.filter(is_active=True).first()
+        if not config:
+            return Response({'detail': 'No active SMTP configuration.'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = SMTPConfigurationSerializer(config)
+        return Response(serializer.data)
+    
     def perform_create(self, serializer):
         """When creating a new configuration, deactivate all others"""
         # First save the new configuration

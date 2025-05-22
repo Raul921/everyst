@@ -113,13 +113,17 @@ export const BasecampIntegrations: React.FC = () => {
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
 
   // SMTP modal Save/Test button enable/disable logic
-  const isSmtpSaveDisabled = !smtpConfig.host || !smtpConfig.port || !smtpConfig.username || !smtpConfig.password || !smtpConfig.from_email || testingEmail;
-  const isSmtpTestDisabled = !smtpConfig.host || !smtpConfig.port || !smtpConfig.username || !smtpConfig.password || !smtpConfig.from_email || testingEmail;
+  const smtpRequiredFields = smtpConfig.host && smtpConfig.port && smtpConfig.from_email;
+  const isSmtpSaveDisabled = !smtpRequiredFields || isLoading;
+  const isSmtpTestDisabled = !smtpRequiredFields || testingEmail || !testEmail;
+
+  // Validation state
+  const [smtpValidationError, setSmtpValidationError] = useState<string | null>(null);
 
   // Handle SMTP form input changes
   const handleSMTPChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
-    
+    setSmtpValidationError(null);
     if (type === 'checkbox') {
       const target = e.target as HTMLInputElement;
       setSmtpConfig(prev => ({ ...prev, [name]: target.checked }));
@@ -134,10 +138,8 @@ export const BasecampIntegrations: React.FC = () => {
   // Handle SMTP test connection
   const handleTestSMTPConnection = async () => {
     if (!smtpConfig.id || !testEmail) return;
-    
     setTestingEmail(true);
     setTestResult(null);
-    
     try {
       const result = await testSMTP(smtpConfig.id, testEmail);
       setTestResult(result);
@@ -153,19 +155,19 @@ export const BasecampIntegrations: React.FC = () => {
 
   // Handle saving SMTP configuration
   const handleSaveSMTPConfig = async () => {
+    if (!smtpRequiredFields) {
+      setSmtpValidationError('Please fill in SMTP server, port, and from email.');
+      return;
+    }
+    setIsLoading(true);
     try {
       const savedConfig = await saveSMTPConfig(smtpConfig);
-      
-      // Update state with the saved config (which includes an ID if it was created)
       setSmtpConfig(savedConfig);
-      
-      // If this is a new connection, add it to the connections list
+      // Update or add connection
       const existingConnectionIndex = connections.findIndex(
         conn => conn.id === `email-${savedConfig.id}`
       );
-      
       if (existingConnectionIndex >= 0) {
-        // Update existing connection
         const updatedConnections = [...connections];
         updatedConnections[existingConnectionIndex] = {
           ...updatedConnections[existingConnectionIndex],
@@ -175,7 +177,6 @@ export const BasecampIntegrations: React.FC = () => {
         };
         setConnections(updatedConnections);
       } else {
-        // Add new connection
         setConnections(prev => [
           ...prev,
           {
@@ -191,11 +192,11 @@ export const BasecampIntegrations: React.FC = () => {
           }
         ]);
       }
-      
-      // Close modal
       setShowAddModal(false);
     } catch (error) {
-      console.error('Error saving SMTP configuration:', error);
+      setSmtpValidationError('Failed to save SMTP configuration. Please check your input.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -856,37 +857,29 @@ export const BasecampIntegrations: React.FC = () => {
             </div>
           }
           footerContent={
-            <div className="flex justify-end space-x-3">
-              <Button 
-                variant="outline"
-                onClick={() => setShowAddModal(false)}
-              >
-                Cancel
-              </Button>
-              <Button 
-                variant="primary"
-                onClick={() => {
-                  // In a real app, this would save the configuration
-                  // and make an API call to connect the service
-                  const newConnection: ServiceConnection = {
-                    id: `${selectedService.id}-${Date.now()}`,
-                    name: selectedService.name || '',
-                    type: selectedService.type as 'communication' | 'notification' | 'cloud' | 'authentication',
-                    provider: selectedService.provider || '',
-                    status: 'connected',
-                    lastConnected: new Date().toISOString(),
-                    icon: selectedService.icon || <User size={24} />,
-                    description: selectedService.description || '',
-                    connectedAccount: 'Connected account',
-                    workspaces: ['Default workspace'],
-                    comingSoon: selectedService.comingSoon
-                  };
-                  setConnections(prev => [...prev, newConnection]);
-                  setShowAddModal(false);
-                }}
-              >
-                Connect Service
-              </Button>
+            <div className="flex flex-col gap-2">
+              {smtpValidationError && (
+                <div className="p-2 rounded text-sm bg-[rgba(var(--color-error),0.1)] text-[rgb(var(--color-error))] flex items-center">
+                  <AlertTriangle size={16} className="mr-2" />
+                  {smtpValidationError}
+                </div>
+              )}
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAddModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={handleSaveSMTPConfig}
+                  disabled={isSmtpSaveDisabled}
+                  isLoading={isLoading}
+                >
+                  {smtpConfig.id ? 'Update' : 'Connect'}
+                </Button>
+              </div>
             </div>
           }
         >
@@ -1096,6 +1089,14 @@ export const BasecampIntegrations: React.FC = () => {
                       />
                       <label htmlFor="make-default" className="text-sm">Set as default email configuration</label>
                     </div>
+                    {smtpValidationError && (
+                      <div className="mt-2 p-2 rounded text-sm bg-[rgba(var(--color-error),0.1)] text-[rgb(var(--color-error))]">
+                        <div className="flex items-center">
+                          <AlertTriangle size={16} className="mr-2" />
+                          {smtpValidationError}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </>
               )}
