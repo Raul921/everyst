@@ -1,5 +1,6 @@
-\
-\"\"\"
+"""
+Activity log serializers for the everyst API.
+"""\"\"
 Activity log serializers for the everyst API.
 \"\"\"
 from rest_framework import serializers
