@@ -49,9 +49,6 @@ router.register(r'network/devices', NetworkDeviceViewSet)
 router.register(r'network/connections', NetworkConnectionViewSet)
 router.register(r'network/scans', NetworkScanViewSet)
 
-# Activity log routes
-router.register(r'logs', ApplicationLogViewSet)
-
 urlpatterns = [
     path('health/', HealthCheckView.as_view(), name='health-check'),
     

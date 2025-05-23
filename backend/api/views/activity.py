@@ -7,7 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from api.models.activity import ApplicationLog
 from api.serializers.activity import ApplicationLogSerializer
-from api.permissions import CanViewAllData
+from api.permissions import CanViewLogs
 
 class ApplicationLogViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -15,7 +15,7 @@ class ApplicationLogViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = ApplicationLog.objects.all().order_by('-timestamp')
     serializer_class = ApplicationLogSerializer
-    permission_classes = [permissions.IsAuthenticated, CanViewAllData]
+    permission_classes = [permissions.IsAuthenticated, CanViewLogs]
     filter_backends = [filters.SearchFilter]
     search_fields = ['user__username', 'action', 'category', 'ip_address', 'details']
     
