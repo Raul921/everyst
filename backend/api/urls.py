@@ -21,6 +21,9 @@ from .views import (
     # Notification views
     NotificationViewSet,
     
+    # Activity log views
+    ApplicationLogViewSet,
+    
     # Network tools
     ping_tool, nmap_tool, dig_tool, nslookup_tool, traceroute_tool,
     whois_tool, ssl_check_tool, netstat_tool, ip_route_tool, tcpdump_tool
@@ -38,10 +41,16 @@ router.register(r'users', UserViewSet)
 router.register(r'roles', UserRoleViewSet)
 router.register(r'notifications', NotificationViewSet, basename='notification')
 
+# Activity logs routes
+router.register(r'activity-logs', ApplicationLogViewSet, basename='activity-logs')
+
 # Network routes
 router.register(r'network/devices', NetworkDeviceViewSet)
 router.register(r'network/connections', NetworkConnectionViewSet)
 router.register(r'network/scans', NetworkScanViewSet)
+
+# Activity log routes
+router.register(r'logs', ApplicationLogViewSet)
 
 urlpatterns = [
     path('health/', HealthCheckView.as_view(), name='health-check'),
