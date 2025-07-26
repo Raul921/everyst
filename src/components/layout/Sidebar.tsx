@@ -33,63 +33,63 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onCollapse }) => 
   const navItems: NavItem[] = [
     { 
       path: '/summit', 
-      name: 'Summit', 
+      name: 'Edem', 
       icon: <LayoutDashboard size={18} />,
-      description: 'Dashboard overview'
+      description: 'информационная панель'
     },
     { 
       path: '/network-map', 
-      name: 'Glacier', 
+      name: 'Harmony View', 
       icon: <Network size={18} />,
-      description: 'Network visualization'
+      description: 'Визуализация сети и соединений'
     },
     { 
       path: '/metrics', 
-      name: 'Altitude', 
+      name: 'Sky Pulse', 
       icon: <LineChart size={18} />,
-      description: 'System metrics'
+      description: 'Метрика системы'
     },
     { 
       path: '/security', 
-      name: 'IceWall', 
+      name: 'ZionWall', 
       icon: <Shield size={18} />,
-      description: 'Security controls'
+      description: 'Управление безопасностью'
     },
     { 
       path: '/logs', 
-      name: 'TrekLog', 
+      name: 'LogVision', 
       icon: <ScrollText size={18} />,
-      description: 'Log viewer'
+      description: 'Просмотр и анализ логов'
     },
     { 
       path: '/alerts', 
-      name: 'Avalanche', 
+      name: 'AlertHub', 
       icon: <Bell size={18} />,
-      description: 'Alert center'
+      description: 'Центр оповещенийr'
     },
     { 
       path: '/integrations', 
-      name: 'Basecamp', 
+      name: 'FlowConnect', 
       icon: <Layers size={18} />,
-      description: 'Connect services'
+      description: 'Интеграция сервисов'
     },
     { 
       path: '/tools', 
-      name: 'GearRoom', 
+      name: 'PowerTools', 
       icon: <Wrench size={18} />,
-      description: 'Utility tools'
+      description: 'Утилиты'
     },
     { 
       path: '/climbers', 
-      name: 'Climbers', 
+      name: 'UserControl', 
       icon: <Users size={18} />,
-      description: 'User management'
+      description: 'Упрпавление пользователями'
     },
     { 
       path: '/settings', 
-      name: 'ControlRoom', 
+      name: 'SystemCore', 
       icon: <Settings size={18} />,
-      description: 'System settings'
+      description: 'Настройки системы'
     }
   ];
 
@@ -157,11 +157,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onCollapse }) => 
               damping: 15 
             }}
             className="relative z-10 flex items-center justify-center"
-            aria-label="everyst logo"
+            aria-label="adam logo"
           >
             <img 
               src="/images/everyst-logo.svg" 
-              alt="everyst" 
+              alt="A.D.A.M" 
               className={isCollapsed ? "h-10 w-10" : "h-12 w-12"} 
             />
           </motion.div>
@@ -177,7 +177,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onCollapse }) => 
               className="ml-3"
             >
               <span className="text-xl font-bold tracking-wide text-[rgb(var(--color-primary))]">
-                everyst
+                A.D.A.M
               </span>
             </motion.div>
           )}
@@ -277,7 +277,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, onCollapse }) => 
             transition={{ duration: 0.2 }}
             className="text-xs text-[rgb(var(--color-text-secondary))] opacity-70"
           >
-            {isCollapsed ? 'v1.0' : 'everyst v1.0.0-alpha'}
+            {isCollapsed ? 'v1.0' : 'a.d.a.m v1.0'}
           </motion.div>
         </AnimatePresence>
       </div>

@@ -9,21 +9,21 @@ class UserRole(models.Model):
     
     Note: This model doesn't inherit from BaseModel as it uses name as primary key.
     """
-    OWNER = 'owner'      # System owner/superuser with full access
-    ADMIN = 'admin'      # Admin with elevated permissions
-    MANAGER = 'manager'  # Manager with some advanced permissions
-    USER = 'user'        # Standard user with basic access
+    OWNER = 'Владелец'      # System owner/superuser with full access
+    ADMIN = 'Администратор'      # Admin with elevated permissions
+    MANAGER = 'Менеджер'  # Manager with some advanced permissions
+    USER = 'Пользователь'        # Standard user with basic access
     
     ROLE_CHOICES = [
-        (OWNER, _('Owner')),
-        (ADMIN, _('Administrator')),
-        (MANAGER, _('Manager')),
-        (USER, _('User')),
+        (OWNER, _('Владелец')),
+        (ADMIN, _('Администратор')),
+        (MANAGER, _('Менеджер')),
+        (USER, _('Пользователь')),
     ]
     
     name = models.CharField(max_length=20, choices=ROLE_CHOICES, primary_key=True)
     description = models.CharField(max_length=255)
-    priority = models.IntegerField(unique=True, help_text="Lower numbers have higher priority")
+    priority = models.IntegerField(unique=True, help_text="Меньшие числа имеют более высокий приоритет.")
     
     # Permissions
     can_manage_users = models.BooleanField(default=False)
@@ -32,18 +32,18 @@ class UserRole(models.Model):
     can_view_all_data = models.BooleanField(default=False)
     
     class Meta:
-        ordering = ['priority']
+        ordering = ['приоритет']
     
     def __str__(self):
         return self.get_name_display()
     
     @classmethod
     def create_default_roles(cls):
-        """Create the default roles if they don't exist"""
+        """Создайте роли по умолчанию, если их нет."""
         defaults = [
             {
                 'name': cls.OWNER,
-                'description': 'System owner with full administrative privileges',
+                'description': 'Владелец системы с полными правами администратора',
                 'priority': 1, 
                 'can_manage_users': True,
                 'can_manage_system': True,
@@ -52,7 +52,7 @@ class UserRole(models.Model):
             },
             {
                 'name': cls.ADMIN,
-                'description': 'Administrator with elevated system control',
+                'description': 'Администратор — администратор с повышенными правами доступа к системе.',
                 'priority': 2,
                 'can_manage_users': True,
                 'can_manage_system': True,
@@ -61,7 +61,7 @@ class UserRole(models.Model):
             },
             {
                 'name': cls.MANAGER,
-                'description': 'Manager with limited administrative privileges',
+                'description': 'Менеджер с ограниченными административными привилегиями',
                 'priority': 3,
                 'can_manage_users': False,
                 'can_manage_system': True,
@@ -70,7 +70,7 @@ class UserRole(models.Model):
             },
             {
                 'name': cls.USER,
-                'description': 'Standard user with basic access',
+                'description': 'Стандартный пользователь с базовым доступом',
                 'priority': 4,
                 'can_manage_users': False,
                 'can_manage_system': False,

@@ -78,7 +78,7 @@ const AddUserForm: React.FC<{
 
   // Check if there's already a system owner
   const hasExistingOwner = useMemo(() => {
-    return Array.isArray(users) && users.some(user => user.role === 'owner');
+    return Array.isArray(users) && users.some(user => user.role === 'Владелец');
   }, [users]);
 
   // Fetch available roles
@@ -207,7 +207,7 @@ const AddUserForm: React.FC<{
     <form id="addUserForm" onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">
-          Username*
+          Имя пользователя*
         </label>
         <input
           type="text"
@@ -217,14 +217,14 @@ const AddUserForm: React.FC<{
           className={`w-full px-3 py-2 border ${
             errors.username ? 'border-[rgb(var(--color-error))]' : 'border-[rgb(var(--color-border))]'
           } rounded-md bg-[rgb(var(--color-input))] text-[rgb(var(--color-text))]`}
-          placeholder="username"
+          placeholder="имя пользователя"
         />
         {errors.username && <p className="mt-1 text-sm text-[rgb(var(--color-error))]">{errors.username}</p>}
       </div>
 
       <div>
         <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">
-          Email*
+          Почта*
         </label>
         <input
           type="email"
@@ -242,7 +242,7 @@ const AddUserForm: React.FC<{
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">
-            First Name
+            Имя
           </label>
           <input
             type="text"
@@ -250,13 +250,13 @@ const AddUserForm: React.FC<{
             value={formData.firstName}
             onChange={handleChange}
             className="w-full px-3 py-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgb(var(--color-input))] text-[rgb(var(--color-text))]"
-            placeholder="First name"
+            placeholder="Ваше имя"
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">
-            Last Name
+            Фамилия
           </label>
           <input
             type="text"
@@ -264,14 +264,14 @@ const AddUserForm: React.FC<{
             value={formData.lastName}
             onChange={handleChange}
             className="w-full px-3 py-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgb(var(--color-input))] text-[rgb(var(--color-text))]"
-            placeholder="Last name"
+            placeholder="Ваша фамилия"
           />
         </div>
       </div>
 
       <div>
         <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">
-          Password*
+          Пароль*
         </label>
         <input
           type="password"
@@ -288,7 +288,7 @@ const AddUserForm: React.FC<{
 
       <div>
         <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">
-          Confirm Password*
+          Подтвердите пароль*
         </label>
         <input
           type="password"
@@ -305,7 +305,7 @@ const AddUserForm: React.FC<{
 
       <div>
         <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">
-          Role*
+          Роль*
         </label>
         <select
           name="role"
@@ -341,7 +341,7 @@ const AddUserForm: React.FC<{
         {errors.role && <p className="mt-1 text-sm text-[rgb(var(--color-error))]">{errors.role}</p>}
         {hasExistingOwner && (
           <p className="mt-1 text-sm text-[rgb(var(--color-warning-text))]">
-            There is already a system owner. You cannot create another owner.
+            Владелец системы уже есть. Создать нового владельца невозможно.
           </p>
         )}
       </div>
@@ -364,10 +364,10 @@ const EditUserForm: React.FC<{
   const [formData, setFormData] = useState({
     firstName: user.first_name || '',
     lastName: user.last_name || '',
-    role: user.role || 'user',
+    role: user.role || 'Пользователь',
     isActive: user.is_active
   });
-  const isCurrentOwner = user.role === 'owner';
+  const isCurrentOwner = user.role === 'Владелец';
   
   // Access parent component state via context or props
   const transferOwnership = () => {
@@ -393,11 +393,11 @@ const EditUserForm: React.FC<{
 
         if (response.ok) {
           const data = await response.json();
-          console.log('Roles API response:', data);
+          console.log('Ответ API ролей:', data);
           // Ensure data is an array before setting it
           if (Array.isArray(data)) {
             setRoles(data);
-          } else if (data && typeof data === 'object') {
+          } else if (data && typeof data === 'объект') {
             // If it's paginated response with results property
             if (Array.isArray(data.results)) {
               setRoles(data.results);
@@ -411,7 +411,7 @@ const EditUserForm: React.FC<{
           }
         }
       } catch (error) {
-        console.error('Error fetching roles:', error);
+        console.error('Ошибка при получении ролей:', error);
       }
     };
 
@@ -422,7 +422,7 @@ const EditUserForm: React.FC<{
     const { name, value } = e.target;
     
     // Special handling for role changes when the user is currently an owner
-    if (name === 'role' && isCurrentOwner && value !== 'owner') {
+    if (name === 'Роль' && isCurrentOwner && value !== 'Владелец') {
       // If trying to demote an owner to another role, trigger the ownership transfer
       transferOwnership();
       return; // Don't update the role yet
@@ -440,7 +440,7 @@ const EditUserForm: React.FC<{
     e.preventDefault();
     
     // If attempting to change owner's role, show transfer dialog instead of submitting
-    if (isCurrentOwner && formData.role !== 'owner') {
+    if (isCurrentOwner && formData.role !== 'Владелец') {
       transferOwnership();
       return;
     }
@@ -450,7 +450,7 @@ const EditUserForm: React.FC<{
     try {
       const token = getAccessToken();
       if (!token) {
-        throw new Error('Authentication token not found');
+        throw new Error('Токен аутентификации не найден');
       }
       
       // Update basic user information
@@ -468,18 +468,18 @@ const EditUserForm: React.FC<{
       });
       
       if (!basicUpdateResponse.ok) {
-        throw new Error('Failed to update user information');
+        throw new Error('Не удалось обновить информацию о пользователе.');
       }
       
       // Only update role if it changed
       if (formData.role !== user.role) {
         // Special check if trying to promote a user to owner
-        if (formData.role === 'owner') {
+        if (formData.role === 'Владелец') {
           // Count current owners
-          const currentOwners = users.filter(u => u.role === 'owner' && u.id !== user.id);
+          const currentOwners = users.filter(u => u.role === 'Владелец' && u.id !== user.id);
           
           if (currentOwners.length > 0) {
-            throw new Error('There can only be one system owner. Please transfer ownership from the current owner first.');
+            throw new Error('Владелец системы может быть только один. Сначала передайте права собственности текущему владельцу.');
           }
         }
         
@@ -495,26 +495,26 @@ const EditUserForm: React.FC<{
         
         if (!roleUpdateResponse.ok) {
           const errorData = await roleUpdateResponse.json();
-          throw new Error(errorData.detail || 'Failed to update user role');
+          throw new Error(errorData.detail || 'Не удалось обновить роль пользователя.');
         }
       }
       
       sendUserNotification(
         user?.id as string,
-        'Success',
-        `User ${user.username} updated successfully`,
-        'success'
+        'Успешно',
+        `Пользователь ${user.username} обновлено успешно`,
+        'Успешно'
       );
       
       onSuccess();
       onClose();
     } catch (error) {
-      console.error('Error updating user:', error);
+      console.error('Ошибка обновления пользователя:', error);
       sendUserNotification(
         user?.id as string,
-        'Error',
-        error instanceof Error ? error.message : 'Failed to update user',
-        'error'
+        'Ошибка',
+        error instanceof Error ? error.message : 'Не удалось обновить пользователя.',
+        'Ошибка'
       );
     } finally {
       setExternalLoading(false);
@@ -528,15 +528,15 @@ const EditUserForm: React.FC<{
       {isCurrentOwner && (
         <div className="bg-[rgb(var(--color-info-bg))] border border-[rgb(var(--color-info-border))] text-[rgb(var(--color-info-text))] p-3 rounded-md mb-4">
           <p className="text-sm">
-            <strong>System Owner:</strong> This user has full administrative access to the system.
-            To change their role, you must first transfer ownership to another user.
+            <strong>Владелец системы:</strong> Этот пользователь имеет полный административный доступ к системе.
+Чтобы изменить его роль, необходимо сначала передать права владения другому пользователю.
           </p>
         </div>
       )}
       
       <div>
         <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">
-          Username
+          Имя пользователя
         </label>
         <input
           type="text"
@@ -544,12 +544,12 @@ const EditUserForm: React.FC<{
           disabled
           className="w-full px-3 py-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgba(var(--color-input),0.5)] text-[rgb(var(--color-text-secondary))]"
         />
-        <p className="mt-1 text-xs text-[rgb(var(--color-text-secondary))]">Username cannot be changed</p>
+        <p className="mt-1 text-xs text-[rgb(var(--color-text-secondary))]">Имя пользователя не может быть изменено</p>
       </div>
 
       <div>
         <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">
-          Email
+          Почта
         </label>
         <input
           type="email"
@@ -557,13 +557,13 @@ const EditUserForm: React.FC<{
           disabled
           className="w-full px-3 py-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgba(var(--color-input),0.5)] text-[rgb(var(--color-text-secondary))]"
         />
-        <p className="mt-1 text-xs text-[rgb(var(--color-text-secondary))]">Email address cannot be changed</p>
+        <p className="mt-1 text-xs text-[rgb(var(--color-text-secondary))]">Адрес электронной почты не может быть изменен</p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">
-            First Name
+            Имя
           </label>
           <input
             type="text"
@@ -576,7 +576,7 @@ const EditUserForm: React.FC<{
 
         <div>
           <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">
-            Last Name
+            Фамилия
           </label>
           <input
             type="text"
@@ -590,7 +590,7 @@ const EditUserForm: React.FC<{
 
       <div>
         <label className="block text-sm font-medium text-[rgb(var(--color-text))] mb-1">
-          Role
+          Роль
         </label>          <select
             name="role"
             value={formData.role}
@@ -606,8 +606,8 @@ const EditUserForm: React.FC<{
           >
             {Array.isArray(roles) && roles.map((role) => {
               // For non-owner users, don't show owner role if there already is one
-              const hasExistingOwner = users.some(u => u.role === 'owner' && u.id !== user.id);
-              if (role.name === 'owner' && hasExistingOwner && user.role !== 'owner') {
+              const hasExistingOwner = users.some(u => u.role === 'Владелец' && u.id !== user.id);
+              if (role.name === 'owner' && hasExistingOwner && user.role !== 'Владелец') {
                 return null; // Skip this option if there's already an owner
               }
               
@@ -625,7 +625,7 @@ const EditUserForm: React.FC<{
           </select>
           {isCurrentOwner && (
             <p className="mt-1 text-sm text-[rgb(var(--color-warning-text))]">
-              To change this user's role, you must first transfer system ownership to another user.
+              Чтобы изменить роль этого пользователя, необходимо сначала передать право владения системой другому пользователю.
             </p>
           )}
       </div>
@@ -640,16 +640,16 @@ const EditUserForm: React.FC<{
           className="h-4 w-4 text-[rgb(var(--color-primary))] focus:ring-[rgb(var(--color-primary))] border-[rgb(var(--color-border))] rounded"
         />
         <label htmlFor="is-active" className="ml-2 block text-sm text-[rgb(var(--color-text))]">
-          Active Account
+          Активный аккаунт
         </label>
       </div>
       
       {isCurrentOwner && (
         <div className="mt-4 p-3 bg-[rgb(var(--color-info-bg))] border border-[rgb(var(--color-info-border))] rounded-md">
-          <h4 className="text-sm font-medium text-[rgb(var(--color-info-text))]">System Owner Actions</h4>
+          <h4 className="text-sm font-medium text-[rgb(var(--color-info-text))]">Действия владельца системы</h4>
           <p className="text-xs text-[rgb(var(--color-info-text))] mt-1 mb-2">
-            The system requires exactly one owner at all times. To change this user's role, 
-            you must first transfer ownership to another administrator.
+            Системе всегда требуется только один владелец. Чтобы изменить роль этого пользователя,
+            необходимо сначала передать права владения другому администратору.
           </p>
           <Button
             type="button"
@@ -657,7 +657,7 @@ const EditUserForm: React.FC<{
             variant="outline"
             className="w-full text-[rgb(var(--color-primary))]"
           >
-            Transfer Ownership to Another User
+            Передать право собственности другому пользователю
           </Button>
         </div>
       )}
@@ -763,7 +763,7 @@ const ClimbersUserManagement: React.FC<ClimbersPageProps> = () => {
         }
         
         // Find and set the system owner
-        const owner = usersList.find(user => user.role === 'owner');
+        const owner = usersList.find(user => user.role === 'Владелец');
         if (owner) {
           setSystemOwner(owner);
         }
@@ -848,25 +848,25 @@ const ClimbersUserManagement: React.FC<ClimbersPageProps> = () => {
     const userToDelete = users.find(user => user.id === userId);
     
     // Prevent deleting system owner
-    if (userToDelete?.role === 'owner') {
+    if (userToDelete?.role === 'Владелец') {
       sendUserNotification(
         currentUser?.id as string,
-        'Error',
-        'System owners cannot be deleted for security reasons.',
-        'error'
+        'Ошибка',
+        'Владельцы системы не могут быть удалены по соображениям безопасности.',
+        'Ошибка'
       );
       return;
     }
     
     // Confirm before deletion
-    if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+    if (!window.confirm('Вы уверены, что хотите удалить этого пользователя? Это действие не может быть отменено.')) {
       return;
     }
     
     try {
       const token = getAccessToken();
       if (!token) {
-        throw new Error('Authentication token not found');
+        throw new Error('Токен аутентификации не найден');
       }
       
       const response = await fetch(`${getApiUrl()}/users/${userId}/`, {
@@ -878,7 +878,7 @@ const ClimbersUserManagement: React.FC<ClimbersPageProps> = () => {
       });
       
       if (!response.ok) {
-        throw new Error('Failed to delete user');
+        throw new Error('Не удалось удалить пользователя.');
       }
       
       // Update the users list, ensuring users is treated as an array
@@ -886,17 +886,17 @@ const ClimbersUserManagement: React.FC<ClimbersPageProps> = () => {
       
       sendUserNotification(
         currentUser?.id as string,
-        'Success',
-        'User was successfully deleted.',
-        'success'
+        'Успешно',
+        'Пользователь был успешно удален.',
+        'Успешно'
       );
     } catch (err) {
       console.error('Error deleting user:', err);
       sendUserNotification(
         currentUser?.id as string,
-        'Error',
-        'Failed to delete user. Please try again.',
-        'error'
+        'Ошибка',
+        'Не удалось удалить пользователя. Попробуйте ещё раз.',
+        'Ошибка'
       );
     }
   };
@@ -904,9 +904,9 @@ const ClimbersUserManagement: React.FC<ClimbersPageProps> = () => {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold text-[rgb(var(--color-text))]">Climbers</h1>
+        <h1 className="text-2xl font-bold text-[rgb(var(--color-text))]">UserControl</h1>
         <p className="text-[rgb(var(--color-text-secondary))] mt-1">
-          Manage users and their roles in your system
+          Управляйте пользователями и их ролями в вашей системе
         </p>
       </header>
       
@@ -917,10 +917,10 @@ const ClimbersUserManagement: React.FC<ClimbersPageProps> = () => {
             <div className="p-4 text-[rgb(var(--color-warning-text))]">
               <div className="flex items-center">
                 <Shield className="h-5 w-5 mr-2" />
-                <h3 className="font-medium">Insufficient Permissions</h3>
+                <h3 className="font-medium">Недостаточно прав</h3>
               </div>
               <p className="mt-1 text-sm">
-                You don't have permission to manage users. Contact your administrator for access.
+                У вас нет разрешения на управление пользователями. Обратитесь к администратору за доступом.
               </p>
             </div>
           </Panel>
@@ -934,7 +934,7 @@ const ClimbersUserManagement: React.FC<ClimbersPageProps> = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[rgb(var(--color-text-secondary))]" />
               <input
                 type="text"
-                placeholder="Search users..."
+                placeholder="Поиск пользователя..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 pr-4 py-2 w-full rounded-md"
@@ -955,11 +955,11 @@ const ClimbersUserManagement: React.FC<ClimbersPageProps> = () => {
                     backgroundSize: '0.7em'
                   }}
                 >
-                  <option value="all" className="text-[rgb(var(--color-text))] bg-[rgb(var(--color-input-bg))]">All Roles</option>
-                  <option value="owner" className="text-[rgb(var(--color-text))] bg-[rgb(var(--color-input-bg))]">Owner</option>
-                  <option value="admin" className="text-[rgb(var(--color-text))] bg-[rgb(var(--color-input-bg))]">Admin</option>
-                  <option value="manager" className="text-[rgb(var(--color-text))] bg-[rgb(var(--color-input-bg))]">Manager</option>
-                  <option value="user" className="text-[rgb(var(--color-text))] bg-[rgb(var(--color-input-bg))]">User</option>
+                  <option value="all" className="text-[rgb(var(--color-text))] bg-[rgb(var(--color-input-bg))]">Все роли</option>
+                  <option value="owner" className="text-[rgb(var(--color-text))] bg-[rgb(var(--color-input-bg))]">Владелец</option>
+                  <option value="admin" className="text-[rgb(var(--color-text))] bg-[rgb(var(--color-input-bg))]">Админ</option>
+                  <option value="manager" className="text-[rgb(var(--color-text))] bg-[rgb(var(--color-input-bg))]">Менеджер</option>
+                  <option value="user" className="text-[rgb(var(--color-text))] bg-[rgb(var(--color-input-bg))]">Пользователь</option>
                 </select>
                 {/* Remove the ChevronDown icon since we're using CSS for the dropdown arrow */}
               </div>
@@ -980,7 +980,7 @@ const ClimbersUserManagement: React.FC<ClimbersPageProps> = () => {
                 variant="primary"
                 leftIcon={<UserPlus className="h-4 w-4" />}
               >
-                Add User
+                Добавить пользователя
               </Button>
             </div>
           </div>
@@ -991,12 +991,12 @@ const ClimbersUserManagement: React.FC<ClimbersPageProps> = () => {
                 <thead className="bg-[rgba(var(--color-bg),0.5)]">
                   <tr className="border-b border-[rgb(var(--color-border))]">
                     <th className="px-4 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider w-12">ID</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">User</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">Email</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">Role</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">Status</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">Joined</th>
-                    <th className="px-4 py-3 text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider text-right">Actions</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">Пользователь</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">Почта</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">Роль</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">Статус</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider">Присоединился</th>
+                    <th className="px-4 py-3 text-xs font-medium text-[rgb(var(--color-text-secondary))] uppercase tracking-wider text-right">Действия</th>
                   </tr>
                 </thead>
                 
@@ -1083,7 +1083,7 @@ const ClimbersUserManagement: React.FC<ClimbersPageProps> = () => {
                         </td>
                         <td className="px-4 py-3 text-sm text-[rgb(var(--color-text))]">{user.email}</td>
                         <td className="px-4 py-3">
-                          <RoleBadge role={user.role || 'user'} />
+                          <RoleBadge role={user.role || 'Пользователь'} />
                         </td>
                         <td className="px-4 py-3">
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -1091,7 +1091,7 @@ const ClimbersUserManagement: React.FC<ClimbersPageProps> = () => {
                               ? 'bg-[rgb(var(--color-status-active-bg))] text-[rgb(var(--color-status-active-text))]' 
                               : 'bg-[rgb(var(--color-status-inactive-bg))] text-[rgb(var(--color-status-inactive-text))]'
                           }`}>
-                            {user.is_active ? 'Active' : 'Inactive'}
+                            {user.is_active ? 'Активный' : 'Неактивный'}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-sm text-[rgb(var(--color-text-secondary))]">
@@ -1114,16 +1114,16 @@ const ClimbersUserManagement: React.FC<ClimbersPageProps> = () => {
                             <button
                               onClick={() => handleUserDelete(user.id)}
                               className={`${
-                                user.id === currentUser?.id || user.role === 'owner'
+                                user.id === currentUser?.id || user.role === 'Владелец'
                                   ? 'text-[rgba(var(--color-error),0.4)] cursor-not-allowed'
                                   : 'text-[rgb(var(--color-error))] hover:text-[rgb(var(--color-error-hover))]'
                               }`}
                               aria-label={`Delete ${user.username}`}
-                              disabled={user.id === currentUser?.id || user.role === 'owner'}
+                              disabled={user.id === currentUser?.id || user.role === 'Владелец'}
                               title={
                                 user.id === currentUser?.id 
                                   ? "You cannot delete your own account"
-                                  : user.role === 'owner'
+                                  : user.role === 'Владелец'
                                     ? "System owners cannot be deleted - transfer ownership first"
                                     : `Delete ${user.username}`
                               }
@@ -1143,48 +1143,48 @@ const ClimbersUserManagement: React.FC<ClimbersPageProps> = () => {
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Panel className="p-4">
-              <h3 className="text-lg font-medium text-[rgb(var(--color-text))]">Total Users</h3>
+              <h3 className="text-lg font-medium text-[rgb(var(--color-text))]">Всего пользователей</h3>
               <p className="text-3xl font-bold mt-2 text-[rgb(var(--color-text))]">{Array.isArray(users) ? users.length : 0}</p>
               <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-1">
-                Active: {Array.isArray(users) ? users.filter(user => user.is_active).length : 0} | 
-                Inactive: {Array.isArray(users) ? users.filter(user => !user.is_active).length : 0}
+                Активных: {Array.isArray(users) ? users.filter(user => user.is_active).length : 0} | 
+                Неактивных: {Array.isArray(users) ? users.filter(user => !user.is_active).length : 0}
               </p>
             </Panel>
             
             <Panel className="p-4">
-              <h3 className="text-lg font-medium text-[rgb(var(--color-text))]">Role Distribution</h3>
+              <h3 className="text-lg font-medium text-[rgb(var(--color-text))]">Распределение ролей</h3>
               <div className="mt-2 space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-[rgb(var(--color-text))]">Owners</span>
+                  <span className="text-sm text-[rgb(var(--color-text))]">Владелец</span>
                   <span className="font-medium text-[rgb(var(--color-text))]">
-                    {Array.isArray(users) ? users.filter(user => user.role === 'owner').length : 0}
+                    {Array.isArray(users) ? users.filter(user => user.role === 'Владелец').length : 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-[rgb(var(--color-text))]">Admins</span>
+                  <span className="text-sm text-[rgb(var(--color-text))]">Админ</span>
                   <span className="font-medium text-[rgb(var(--color-text))]">
-                    {Array.isArray(users) ? users.filter(user => user.role === 'admin').length : 0}
+                    {Array.isArray(users) ? users.filter(user => user.role === 'Админ').length : 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-[rgb(var(--color-text))]">Managers</span>
+                  <span className="text-sm text-[rgb(var(--color-text))]">Менеджер</span>
                   <span className="font-medium text-[rgb(var(--color-text))]">
-                    {Array.isArray(users) ? users.filter(user => user.role === 'manager').length : 0}
+                    {Array.isArray(users) ? users.filter(user => user.role === 'Менеджер').length : 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-[rgb(var(--color-text))]">Users</span>
+                  <span className="text-sm text-[rgb(var(--color-text))]">Пользователь</span>
                   <span className="font-medium text-[rgb(var(--color-text))]">
-                    {Array.isArray(users) ? users.filter(user => user.role === 'user' || !user.role).length : 0}
+                    {Array.isArray(users) ? users.filter(user => user.role === 'Пользователь' || !user.role).length : 0}
                   </span>
                 </div>
               </div>
             </Panel>
             
             <Panel className="p-4">
-              <h3 className="text-lg font-medium text-[rgb(var(--color-text))]">Recent Activity</h3>
+              <h3 className="text-lg font-medium text-[rgb(var(--color-text))]">Недавняя активность</h3>
               <p className="text-sm text-[rgb(var(--color-text-secondary))] mt-2">
-                Last user joined: {
+                Последний присоединившийся пользователь: {
                   Array.isArray(users) && users.length > 0 
                     ? new Date(Math.max(...users
                         .filter(user => user.date_joined)
@@ -1202,7 +1202,7 @@ const ClimbersUserManagement: React.FC<ClimbersPageProps> = () => {
       <Modal
         isOpen={showAddUserModal}
         onClose={() => setShowAddUserModal(false)}
-        title="Add User"
+        title="Добавить учетную запись"
         footerContent={
           <div className="flex justify-end space-x-2">
             <Button
@@ -1219,7 +1219,7 @@ const ClimbersUserManagement: React.FC<ClimbersPageProps> = () => {
               variant="primary"
               isLoading={addUserLoading}
             >
-              {addUserLoading ? 'Creating...' : 'Create User'}
+              {addUserLoading ? 'Создание...' : 'Создать пользователя'}
             </Button>
           </div>
         }
@@ -1239,7 +1239,7 @@ const ClimbersUserManagement: React.FC<ClimbersPageProps> = () => {
       <Modal
         isOpen={showEditUserModal}
         onClose={() => setShowEditUserModal(false)}
-        title="Edit User"
+        title="Редактировать пользователя"
         footerContent={
           <div className="flex justify-end space-x-2">
             <Button
@@ -1256,7 +1256,7 @@ const ClimbersUserManagement: React.FC<ClimbersPageProps> = () => {
               variant="primary"
               isLoading={editUserLoading}
             >
-              {editUserLoading ? 'Updating...' : 'Update User'}
+              {editUserLoading ? 'Обновление...' : 'Пользователь обновлен'}
             </Button>
           </div>
         }
@@ -1309,7 +1309,7 @@ const ClimbersUserManagement: React.FC<ClimbersPageProps> = () => {
                 }
                 setShowOwnershipModal(false);
               } catch (err) {
-                console.error('Error updating users after ownership transfer:', err);
+                console.error('Ошибка обновления пользователей после передачи права собственности:', err);
               } finally {
                 setLoading(false);
               }
@@ -1320,7 +1320,7 @@ const ClimbersUserManagement: React.FC<ClimbersPageProps> = () => {
           eligibleUsers={users.filter(user => 
             user.id !== systemOwner.id && 
             user.is_active && 
-            (user.role === 'admin')
+            (user.role === 'Администратор')
           )}
         />
       )}

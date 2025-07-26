@@ -55,8 +55,8 @@ export const LoginPage: React.FC = () => {
       <div className="max-w-md w-full px-6 py-8 bg-[rgba(var(--color-card),0.97)] backdrop-blur-sm shadow-xl rounded-lg border border-[rgb(var(--color-border))]">
         <div className="flex flex-col items-center mb-6">
           <img src="/images/everyst-logo.svg" alt="Everyst Logo" className="h-16 mb-4" />
-          <h1 className="text-3xl font-bold text-[rgb(var(--color-text))]">Login to everyst</h1>
-          <p className="text-[rgb(var(--color-text))] font-medium">Enter your credentials</p>
+          <h1 className="text-3xl font-bold text-[rgb(var(--color-text))]">Войти в систему A.D.A.M</h1>
+          <p className="text-[rgb(var(--color-text))] font-medium">Введите ваши учетные данные</p>
         </div>
 
         {error && (
@@ -69,7 +69,7 @@ export const LoginPage: React.FC = () => {
         {usersExist === false && (
           <AuthNotification 
             type="info"
-            message="No users exist. Redirecting to registration page..."
+            message="Пользователя нет. Перенаправление на страницу регистрации..."
             onDismiss={() => navigate('/register', { replace: true })}
           />
         )}
@@ -77,7 +77,7 @@ export const LoginPage: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <label htmlFor="username" className="text-sm font-medium text-[rgb(var(--color-text))] mb-2 block">
-              Username
+              Имя пользователя
             </label>
             <div className="relative mt-1.5">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -90,7 +90,7 @@ export const LoginPage: React.FC = () => {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full rounded-md py-2 pl-10 pr-3 font-medium"
-                placeholder="Enter username"
+                placeholder="Введите имя пользователя"
               />
             </div>
           </div>
@@ -98,7 +98,7 @@ export const LoginPage: React.FC = () => {
           <div className="space-y-2">
             <div className="flex justify-between mb-2">
               <label htmlFor="password" className="text-sm font-medium text-[rgb(var(--color-text))]">
-                Password
+                Пароль
               </label>
             </div>
             <div className="relative mt-1.5">
@@ -112,7 +112,7 @@ export const LoginPage: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full rounded-md py-2 pl-10 pr-3 font-medium" 
-                placeholder="Enter password"
+                placeholder="Введите пароль"
               />
             </div>
           </div>
@@ -125,12 +125,12 @@ export const LoginPage: React.FC = () => {
               isLoading={submitting}
               disabled={submitting}
             >
-              Sign in
+              Войти
             </Button>
           </div>
         </form>
 
-        {/* Register link only shows if no users exist in system, which is handled by route protection */}
+        {/* Ссылка на регистрацию отображается только в том случае, если в системе нет пользователей. Это регулируется защитой маршрута. */}
       </div>
     </div>
   );

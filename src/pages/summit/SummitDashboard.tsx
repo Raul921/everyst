@@ -35,18 +35,18 @@ interface RawMetricsData {
     kernel: string;
   };
   security?: {
-    status: 'success' | 'warning' | 'error';
+    status: 'успешно' | 'предупреждение' | 'ошибка';
     lastScan: string | null;
   };
   threats?: {
     type: string;
     time: string;
-    status: 'success' | 'warning' | 'error';
+    status: 'успешно' | 'предупреждение' | 'ошибка';
   }[];
   alerts?: {
     title: string;
     serverId: string;
-    severity: 'warning' | 'error';
+    severity: 'предупреждение' | 'ошибка';
   }[];
 }
 
@@ -56,40 +56,40 @@ interface SystemMetrics {
     usage: number;
     cores: number;
     speed: number;
-    status: 'success' | 'warning' | 'error';
+    status: 'успешно' | 'предупреждение' | 'ошибка';
   } | null;
   memory: {
     used: number;
     total: number;
     percentage: number;
-    status: 'success' | 'warning' | 'error';
+    status: 'успешно' | 'предупреждение' | 'ошибка';
   } | null;
   disk: {
     used: number;
     total: number;
     percentage: number;
-    status: 'success' | 'warning' | 'error';
+    status: 'успешно' | 'предупреждение' | 'ошибка';
   } | null;
   network: {
     speed: number;
     upload: number;
     download: number;
     utilization: number;
-    status: 'success' | 'warning' | 'error';
+    status: 'успешно' | 'предупреждение' | 'ошибка';
   } | null;
   security: {
-    status: 'success' | 'warning' | 'error';
+    status: 'успешно' | 'предупреждение' | 'ошибка';
     lastScan: string | null;
   } | null;
   threats: {
     type: string;
     time: string;
-    status: 'success' | 'warning' | 'error';
+    status: 'успешно' | 'предупреждение' | 'ошибка';
   }[];
   alerts: {
     title: string;
     serverId: string;
-    severity: 'warning' | 'error';
+    severity: 'предупреждение' | 'ошибка';
   }[];
   uptime: {
     percentage: number;
@@ -130,10 +130,10 @@ export const SummitDashboard: React.FC = () => {
   const { isConnected } = useWebSocket();
   
   // Calculate status based on usage percentages
-  const getStatus = (usage: number): 'success' | 'warning' | 'error' => {
-      if (usage >= 90) return 'error';
-      if (usage >= 70) return 'warning';
-      return 'success';
+  const getStatus = (usage: number): 'успешно' | 'предупреждение' | 'ошибка' => {
+      if (usage >= 90) return 'ошибка';
+      if (usage >= 70) return 'предупреждение';
+      return 'успешно';
   };
   
   // Process metrics data from socket
@@ -196,7 +196,7 @@ export const SummitDashboard: React.FC = () => {
     // Just reset our local loading state
     setTimeout(() => {
       if (!isConnected) {
-        setError('Unable to connect to metrics server');
+        setError('Невозможно подключиться к серверу метрик');
         setIsLoading(false);
       }
     }, 3000);
@@ -223,8 +223,8 @@ export const SummitDashboard: React.FC = () => {
     const socket = socketService.getSocket();
     
     if (!socket) {
-      console.error('Socket instance not available');
-      setError('Socket connection not available');
+      console.error('Экземпляр сокета недоступен');
+      setError('Подключение к сокету недоступно');
       setIsLoading(false);
       return;
     }
@@ -237,19 +237,19 @@ export const SummitDashboard: React.FC = () => {
           usage: rawData.cpu_usage || 0,
           cores: rawData.cpu_cores || 0,
           speed: rawData.cpu_speed || 0,
-          status: 'success'
+          status: 'успешно'
         },
         memory: {
           used: rawData.memory_used || 0,
           total: rawData.memory_total || 0,
           percentage: rawData.memory_usage || 0,
-          status: 'success'
+          status: 'успешно'
         },
         disk: {
           used: rawData.disk_used || 0,
           total: rawData.disk_total || 0,
           percentage: rawData.disk_usage || 0,
-          status: 'success'
+          status: 'успешно'
         },
         network: {
           upload: rawData.network_tx ? rawData.network_tx / (1024 * 1024) : 0, // Convert bytes to MB
@@ -309,8 +309,8 @@ export const SummitDashboard: React.FC = () => {
       {/* Page header with breadcrumbs */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
         <div>
-          <h1 className="text-2xl font-bold text-[rgb(var(--color-text))]">Summit</h1>
-          <p className="text-[rgb(var(--color-text-secondary))]">Your system at a glance</p>
+          <h1 className="text-2xl font-bold text-[rgb(var(--color-text))]">Edem</h1>
+          <p className="text-[rgb(var(--color-text-secondary))]">Ваша система на первый взгляд</p>
         </div>
         <div className="flex space-x-2">
           <Button 
@@ -320,32 +320,32 @@ export const SummitDashboard: React.FC = () => {
             isLoading={isLoading}
             size="sm"
           >
-            Refresh
+            Обновить
           </Button>
           <Button 
             variant="primary" 
             leftIcon={<Plus size={16} />}
             size="sm"
           >
-            Add Widget
+            Добавить виджет
           </Button>
         </div>
       </div>
 
       {/* System status overview panel */}
       <Panel 
-        title="System Status" 
-        description="Real-time health and performance indicators"
+        title="Статус системы" 
+        description="Показатели состояния системы и производительности в режиме реального времени"
         actions={
           <StatusPill 
-            status={error ? 'error' : isConnected ? 'success' : 'warning'} 
-            text={error ? 'Connection Error' : isConnected ? 'Live Metrics' : 'Connecting...'}
+            status={error ? 'ошибка' : isConnected ? 'успешно' : 'предупреждение'} 
+            text={error ? 'Ошибка подключения' : isConnected ? 'Живая метрика' : 'Подключение...'}
           />
         }
       >
         {/* All cards now have the same frost level */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card title="CPU Usage" isLoading={isLoading}>
+          <Card title="Использование ЦП" isLoading={isLoading}>
             {metrics.cpu ? (
               <>
                 <div className="flex justify-between items-center">
@@ -354,7 +354,7 @@ export const SummitDashboard: React.FC = () => {
                     <div>
                       <div className="text-2xl font-semibold">{metrics.cpu.usage}%</div>
                       <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                        {metrics.cpu.cores} cores @ {metrics.cpu.speed}GHz
+                        {metrics.cpu.cores} ядер @ {metrics.cpu.speed}ГГЦ
                       </div>
                     </div>
                   </div>
@@ -380,16 +380,16 @@ export const SummitDashboard: React.FC = () => {
             )}
           </Card>
           
-          <Card title="Memory" isLoading={isLoading}>
+          <Card title="Память" isLoading={isLoading}>
             {metrics.memory ? (
               <>
                 <div className="flex justify-between items-center">
                   <div className="flex items-center">
                     <Server className="mr-2 text-[rgb(var(--color-primary))]" size={24} />
                     <div>
-                      <div className="text-2xl font-semibold">{metrics.memory.used.toFixed(1)} GB</div>
+                      <div className="text-2xl font-semibold">{metrics.memory.used.toFixed(1)} ГБ</div>
                       <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                        of {metrics.memory.total} GB used ({metrics.memory.percentage}%)
+                        из {metrics.memory.total} ГБ использовано ({metrics.memory.percentage}%)
                       </div>
                     </div>
                   </div>
@@ -415,16 +415,16 @@ export const SummitDashboard: React.FC = () => {
             )}
           </Card>
           
-          <Card title="Disk" isLoading={isLoading}>
+          <Card title="Диск" isLoading={isLoading}>
             {metrics.disk ? (
               <>
                 <div className="flex justify-between items-center">
                   <div className="flex items-center">
                     <HardDrive className="mr-2 text-[rgb(var(--color-primary))]" size={24} />
                     <div>
-                      <div className="text-2xl font-semibold">{metrics.disk.used} GB</div>
+                      <div className="text-2xl font-semibold">{metrics.disk.used} ГБ</div>
                       <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                        of {metrics.disk.total} GB used ({metrics.disk.percentage}%)
+                        of {metrics.disk.total} ГБ использовано ({metrics.disk.percentage}%)
                       </div>
                     </div>
                   </div>
@@ -450,16 +450,16 @@ export const SummitDashboard: React.FC = () => {
             )}
           </Card>
           
-          <Card title="Network" isLoading={isLoading}>
+          <Card title="Сеть" isLoading={isLoading}>
             {metrics.network ? (
               <>
                 <div className="flex justify-between items-center">
                   <div className="flex items-center">
                     <Wifi className="mr-2 text-[rgb(var(--color-primary))]" size={24} />
                     <div>
-                      <div className="text-2xl font-semibold">{metrics.network.speed} MB/s</div>
+                      <div className="text-2xl font-semibold">{metrics.network.speed} МБ/с</div>
                       <div className="text-xs text-[rgb(var(--color-text-secondary))]">
-                        {metrics.network.upload} MB/s ↑ / {metrics.network.download} MB/s ↓
+                        {metrics.network.upload} МБ/с ↑ / {metrics.network.download} МБ/с ↓
                       </div>
                     </div>
                   </div>
@@ -488,15 +488,15 @@ export const SummitDashboard: React.FC = () => {
       </Panel>
       
       {/* Server Information Panel */}
-      <Panel title="Server Information" description="Detailed server specifications and network information">
+      <Panel title="Информация о сервере" description="Подробные характеристики сервера и информация о сети">
         {metrics.server_info ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card title="System Identity">
+            <Card title="Идентификация системы">
               <div className="space-y-4">
                 <div className="flex items-start">
                   <Server className="mt-0.5 mr-3 text-[rgb(var(--color-primary))]" size={20} />
                   <div>
-                    <div className="font-medium">Hostname</div>
+                    <div className="font-medium">Имя хоста</div>
                     <div className="text-[rgb(var(--color-text-secondary))]">{metrics.server_info.hostname}</div>
                   </div>
                 </div>
@@ -504,7 +504,7 @@ export const SummitDashboard: React.FC = () => {
                 <div className="flex items-start">
                   <Terminal className="mt-0.5 mr-3 text-[rgb(var(--color-primary))]" size={20} />
                   <div>
-                    <div className="font-medium">Operating System</div>
+                    <div className="font-medium">Операционная система</div>
                     <div className="text-[rgb(var(--color-text-secondary))]">{metrics.server_info.os}</div>
                   </div>
                 </div>
@@ -512,7 +512,7 @@ export const SummitDashboard: React.FC = () => {
                 <div className="flex items-start">
                   <Info className="mt-0.5 mr-3 text-[rgb(var(--color-primary))]" size={20} />
                   <div>
-                    <div className="font-medium">Architecture</div>
+                    <div className="font-medium">Архитектура</div>
                     <div className="text-[rgb(var(--color-text-secondary))]">{metrics.server_info.architecture}</div>
                   </div>
                 </div>
@@ -520,19 +520,19 @@ export const SummitDashboard: React.FC = () => {
                 <div className="flex items-start">
                   <Terminal className="mt-0.5 mr-3 text-[rgb(var(--color-primary))]" size={20} />
                   <div>
-                    <div className="font-medium">Kernel Version</div>
+                    <div className="font-medium">Версия ядра</div>
                     <div className="text-[rgb(var(--color-text-secondary))]">{metrics.server_info.kernel}</div>
                   </div>
                 </div>
               </div>
             </Card>
             
-            <Card title="Network Configuration">
+            <Card title="Конфигурация сети">
               <div className="space-y-4">
                 <div className="flex items-start">
                   <Network className="mt-0.5 mr-3 text-[rgb(var(--color-primary))]" size={20} />
                   <div>
-                    <div className="font-medium">Private IP Address</div>
+                    <div className="font-medium">Приватный IP адрес</div>
                     <div className="text-[rgb(var(--color-text-secondary))]">{metrics.server_info.private_ip}</div>
                   </div>
                 </div>
@@ -540,7 +540,7 @@ export const SummitDashboard: React.FC = () => {
                 <div className="flex items-start">
                   <Globe className="mt-0.5 mr-3 text-[rgb(var(--color-primary))]" size={20} />
                   <div>
-                    <div className="font-medium">Public IP Address</div>
+                    <div className="font-medium">Публичный IP адрес</div>
                     <div className="text-[rgb(var(--color-text-secondary))]">{metrics.server_info.public_ip}</div>
                   </div>
                 </div>
@@ -550,7 +550,7 @@ export const SummitDashboard: React.FC = () => {
                     variant="primary"
                     leftIcon={<RefreshCw size={16} />}
                   >
-                    Refresh Network Information
+                    Обновить информацию о сети
                   </Button>
                 </div>
               </div>
@@ -594,8 +594,8 @@ export const SummitDashboard: React.FC = () => {
       
       {/* Middle row with two panels */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Panel title="Security Status" description="IceWall status report">
-          <Card title="Security Posture" className="mb-4" isLoading={isLoading}>
+        <Panel title="Статус безопасности" description="Отчет о состоянии ZionWall">
+          <Card title="Положение безопасности" className="mb-4" isLoading={isLoading}>
             {metrics.security ? (
               <div className="flex justify-between items-center">
                 <div className="flex items-center">
@@ -606,7 +606,7 @@ export const SummitDashboard: React.FC = () => {
                        metrics.security.status === 'warning' ? 'Warning' : 'Alert'}
                     </div>
                     <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                      Last scan: {metrics.security.lastScan || 'Unknown'}
+                     Последнее сканирование: {metrics.security.lastScan || 'Unknown'}
                     </div>
                   </div>
                 </div>
@@ -630,14 +630,14 @@ export const SummitDashboard: React.FC = () => {
             )}
           </Card>
           
-          <Card title="Recent Threats" isLoading={isLoading}>
+          <Card title="Недавние угрозы" isLoading={isLoading}>
             {metrics.threats && metrics.threats.length > 0 ? (
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-[rgb(var(--color-text-secondary))]">
-                    <th className="pb-2">Type</th>
-                    <th className="pb-2">Time</th>
-                    <th className="pb-2">Status</th>
+                    <th className="pb-2">Тип</th>
+                    <th className="pb-2">Время</th>
+                    <th className="pb-2">Статус</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -651,7 +651,7 @@ export const SummitDashboard: React.FC = () => {
                 </tbody>
               </table>
             ) : metrics.threats && metrics.threats.length === 0 ? (
-              <CardEmptyState message="No recent threats detected" />
+              <CardEmptyState message="Недавних угроз не обнаружено." />
             ) : (
               <div className="space-y-4">
                 <Skeleton className="h-6 w-full" />
@@ -662,14 +662,14 @@ export const SummitDashboard: React.FC = () => {
           </Card>
         </Panel>
         
-        <Panel title="System Health" description="Active alerts and notifications">
-          <Card title="Alerts" className="mb-4" isLoading={isLoading || isAlertsLoading}>
+        <Panel title="Здоровье системы" description="Активные оповещения и уведомления">
+          <Card title="Оповещения" className="mb-4" isLoading={isLoading || isAlertsLoading}>
             {metrics.alerts ? (
               <>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <AlertTriangle className="text-[rgb(var(--color-primary))] mr-2" size={20} />
-                    <span>{metrics.alerts.length} active alerts require attention</span>
+                    <span>{metrics.alerts.length} активные оповещения требуют внимания</span>
                   </div>
                   <Button
                     variant="ghost"
@@ -678,7 +678,7 @@ export const SummitDashboard: React.FC = () => {
                     onClick={refreshAlerts}
                     isLoading={isAlertsLoading}
                   >
-                    Refresh
+                    Обновить
                   </Button>
                 </div>
                 
@@ -695,14 +695,14 @@ export const SummitDashboard: React.FC = () => {
                       >
                         <div className="font-medium">{alert.title}</div>
                         <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                          Server ID: {alert.serverId}
+                          Идентификатор сервера: {alert.serverId}
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
                   <div className="mt-3 py-4 text-center text-[rgb(var(--color-text-secondary))]">
-                    No active alerts
+                    Нет активных оповещений
                   </div>
                 )}
               </>
@@ -717,14 +717,14 @@ export const SummitDashboard: React.FC = () => {
             )}
           </Card>
           
-          <Card title="System Uptime" isLoading={isLoading}>
+          <Card title="Время работы системы" isLoading={isLoading}>
             {metrics.uptime ? (
               <div className="flex items-center">
                 <Activity className="mr-3 text-[rgb(var(--color-primary))]" size={24} />
                 <div>
-                  <div className="text-lg font-medium">{metrics.uptime.percentage}% Uptime</div>
+                  <div className="text-lg font-medium">{metrics.uptime.percentage}% Время работы</div>
                   <div className="text-sm text-[rgb(var(--color-text-secondary))]">
-                    {metrics.uptime.duration ? `Server running for ${metrics.uptime.duration}` : 'Uptime data unavailable'}
+                    {metrics.uptime.duration ? `Сервер работает ${metrics.uptime.duration}` : 'Данные о времени безотказной работы недоступны'}
                   </div>
                 </div>
               </div>
@@ -742,31 +742,31 @@ export const SummitDashboard: React.FC = () => {
       </div>
       
       {/* Bottom row */}
-      <Panel title="Additional Resources" defaultExpanded={false}>
+      <Panel title="Дополнительные ресурсы" defaultExpanded={false}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card title="Documentation" collapsible defaultCollapsed={false}>
+          <Card title="Документация" collapsible defaultCollapsed={false}>
             <ul className="space-y-2 text-sm">
               <li className="flex items-center">
                 <span className="w-1.5 h-1.5 bg-[rgb(var(--color-primary))] rounded-full mr-2"></span>
-                <a href="#" className="text-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary-light))] hover:underline">everyst User Guide</a>
+                <a href="#" className="text-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary-light))] hover:underline">Каждое руководство пользователя</a>
               </li>
               <li className="flex items-center">
                 <span className="w-1.5 h-1.5 bg-[rgb(var(--color-primary))] rounded-full mr-2"></span>
-                <a href="#" className="text-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary-light))] hover:underline">API Documentation</a>
+                <a href="#" className="text-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary-light))] hover:underline">API-документация</a>
               </li>
               <li className="flex items-center">
                 <span className="w-1.5 h-1.5 bg-[rgb(var(--color-primary))] rounded-full mr-2"></span>
-                <a href="#" className="text-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary-light))] hover:underline">Troubleshooting</a>
+                <a href="#" className="text-[rgb(var(--color-primary))] hover:text-[rgb(var(--color-primary-light))] hover:underline">Поиск неисправностей</a>
               </li>
             </ul>
           </Card>
           
-          <Card title="Get Support" collapsible defaultCollapsed={true}>
+          <Card title="Получить поддержку" collapsible defaultCollapsed={true}>
             <CardEmptyState 
-              message="Need help with everyst?"
+              message="Нужна помощь во всем?"
               action={
                 <Button variant="primary">
-                  Submit an issue
+                  Отправить вопрос
                 </Button>
               }
             />

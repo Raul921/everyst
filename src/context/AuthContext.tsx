@@ -120,7 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUsersExist(usersExist);
       return usersExist;
     } catch (err) {
-      console.error('Error performing first run check:', err);
+      console.error('Ошибка при выполнении проверки первого запуска:', err);
       return false;
     }
   };
@@ -147,13 +147,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Simple check to see if token has valid JWT format (header.payload.signature)
           const tokenParts = accessToken.split('.');
           if (tokenParts.length !== 3) {
-            console.warn('Invalid JWT token format, clearing authentication');
+            console.warn('Неверный формат токена JWT, аутентификация отменена');
             clearAuthState();
             setLoading(false);
             return;
           }
         } catch (tokenFormatErr) {
-          console.warn('Error parsing stored token:', tokenFormatErr);
+          console.warn('Ошибка анализа сохраненного токена:', tokenFormatErr);
           clearAuthState();
           setLoading(false);
           return;
@@ -161,7 +161,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // If there are no users in the system but we have a token, it must be from a previous environment
         if (!usersExist && accessToken) {
-          console.warn('Found token but no users exist in database - clearing stored credentials');
+          console.warn('Токен найден, но в базе данных нет пользователей — очистка сохраненных учетных данных');
           clearAuthState();
           setLoading(false);
           return;
@@ -180,7 +180,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Connect to WebSocket with token (combined connection+authentication)
           const connected = await connect(accessToken);
           if (!connected) {
-            console.debug('Could not establish WebSocket connection during auth check');
+            console.debug('Не удалось установить соединение WebSocket во время проверки подлинности.');
             // Continue with app functionality even if WebSocket fails
           }
         } else {
@@ -192,7 +192,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }
       } catch (err) {
-        console.error('Auth check error:', err);
+        console.error('Ошибка проверки авторизации:', err);
         clearAuthState();
       } finally {
         setLoading(false);
@@ -216,15 +216,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!response.ok) {
         // Log specific error information for debugging
         if (response.status === 401) {
-          console.warn('Token authentication failed: Unauthorized');
+          console.warn('Ошибка аутентификации токена: не авторизован');
         } else if (response.status === 404) {
-          console.warn('User not found - may be using token from previous environment');
+          console.warn('Пользователь не найден — возможно, используется токен из предыдущей среды');
         } else {
           try {
             const errorData = await response.json();
-            console.warn('Authentication error:', errorData);
+            console.warn('Ошибка аутентификации:', errorData);
           } catch (e) {
-            console.warn(`Authentication failed with status ${response.status}`);
+            console.warn(`Аутентификация не удалась со статусом ${response.status}`);
           }
         }
         return null;
@@ -232,7 +232,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       return await response.json();
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error('Ошибка при получении данных пользователя:', error);
       return null;
     }
   };
@@ -269,7 +269,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const data = await response.json();
       
       if (!response.ok) {
-        setError(data.detail || 'Login failed. Please check your credentials.');
+        setError(data.detail || 'Не удалось войти. Проверьте свои учётные данные.');
         setLoading(false);
         return false;
       }
@@ -288,10 +288,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           updatePermissions(userData);
           
           // Connect to WebSocket with token (combined connection+authentication)
-          console.log('Login successful, establishing secure WebSocket connection');
+          console.log('Вход успешен, установлено безопасное соединение WebSocket.');
           const connected = await connect(data.access);
           if (!connected) {
-            console.warn('Could not establish WebSocket connection after login');
+            console.warn('Не удалось установить соединение WebSocket после входа в систему.');
             // Continue with app functionality even if WebSocket fails
           }
           
@@ -299,13 +299,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return true;
       } else {
         clearAuthState();
-        setError('Could not retrieve user data');
+        setError('Не удалось получить данные пользователя.');
         setLoading(false);
         return false;
       }
     } catch (err) {
       console.error('Login error:', err);
-      setError('An error occurred during login. Please try again.');
+      setError('Произошла ошибка при входе. Попробуйте ещё раз.');
       clearAuthState();
       setLoading(false);
       return false;
@@ -352,7 +352,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else if (data.password) {
           setError(`Password: ${data.password.join(', ')}`);
         } else {
-          setError(data.detail || 'Registration failed.');
+          setError(data.detail || 'Регистрация не удалась.');
         }
         setLoading(false);
         return false;
@@ -377,10 +377,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUsersExist(true);
         
         // Connect to WebSocket with token (combined connection+authentication)
-        console.log('Registration successful, establishing secure WebSocket connection');
+        console.log('Регистрация прошла успешно, установлено безопасное соединение WebSocket');
         const connected = await connect(data.access);
         if (!connected) {
-          console.warn('Could not establish WebSocket connection after registration');
+          console.warn('Не удалось установить соединение WebSocket после регистрации');
           // Continue with app functionality even if WebSocket fails
         }
         
@@ -388,13 +388,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return true;
       } else {
         clearAuthState();
-        setError('Could not retrieve user data');
+        setError('Не удалось получить данные пользователя.');
         setLoading(false);
         return false;
       }
     } catch (err) {
-      console.error('Registration error:', err);
-      setError('An error occurred during registration. Please try again.');
+      console.error('Ошибка регистрации:', err);
+      setError('Произошла ошибка при регистрации. Попробуйте ещё раз.');
       clearAuthState();
       setLoading(false);
       return false;
@@ -440,10 +440,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updatePermissions(userData);
         
         // Update WebSocket connection with new token
-        console.log('Token refreshed, updating WebSocket connection');
+        console.log('Токен обновлен, подключение WebSocket обновлено.');
         const connected = await connect(data.access);
         if (!connected) {
-          console.warn('Could not establish WebSocket connection after token refresh');
+          console.warn('Не удалось установить соединение WebSocket после обновления токена.');
           // Continue with app functionality even if WebSocket fails
         }
         
@@ -452,7 +452,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       return false;
     } catch (err) {
-      console.error('Token refresh error:', err);
+      console.error('Ошибка обновления токена:', err);
       clearAuthState();
       return false;
     }
@@ -496,7 +496,7 @@ export const useAuth = () => {
   const context = useContext(AuthContext);
   
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth должен использоваться внутри AuthProvider');
   }
   
   return context;

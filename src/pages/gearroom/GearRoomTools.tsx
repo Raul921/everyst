@@ -28,7 +28,7 @@ import {
 // Types for tool execution
 interface CommandResult {
   output: string;
-  status: 'success' | 'error' | 'warning' | 'info' | 'loading';
+  status: 'успешно' | 'ошибка' | 'предупреждение' | 'информация' | 'загрузка';
   timestamp: string;
 }
 
@@ -49,7 +49,7 @@ const AdvancedTerminal: React.FC = () => {
     if (terminalContainerRef.current) {
       if (!document.fullscreenElement) {
         terminalContainerRef.current.requestFullscreen().catch(err => {
-          console.error(`Error attempting to enable fullscreen: ${err.message}`);
+          console.error(`Ошибка при попытке включить полноэкранный режим: ${err.message}`);
         });
       } else {
         document.exitFullscreen();
@@ -63,10 +63,10 @@ const AdvancedTerminal: React.FC = () => {
       setIsFullscreen(!!document.fullscreenElement);
     };
     
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('полноэкранное изменение', handleFullscreenChange);
     
     return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('полноэкранное изменение', handleFullscreenChange);
     };
   }, []);
   
@@ -84,20 +84,20 @@ const AdvancedTerminal: React.FC = () => {
       <div className="flex justify-between items-center p-2 bg-gray-900 border-b border-gray-700">
         <div className="flex items-center">
           <Terminal size={16} className="text-green-500 mr-2" />
-          <span className="text-green-500 text-sm font-mono">Secure System Access</span>
+          <span className="text-green-500 text-sm font-mono">Безопасный доступ к системе</span>
         </div>
         <div className="flex items-center space-x-2">
           <button 
             onClick={toggleFullscreen}
             className="text-gray-400 hover:text-white transition-colors"
-            title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+            title={isFullscreen ? "Выйти из полноэкранного режима" : "Войти в полноэкранный режим"}
           >
             <Maximize2 size={16} />
           </button>
           <button 
             className="text-gray-400 hover:text-white transition-colors"
             onClick={refreshTerminal}
-            title="Refresh terminal"
+            title="Обновить терминал"
           >
             <RefreshCw size={16} />
           </button>
@@ -113,7 +113,7 @@ const AdvancedTerminal: React.FC = () => {
         {/* For demo purposes, using a placeholder iframe for visual */}
         <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
           <div className="bg-black/70 p-4 rounded text-green-500 font-mono">
-            For actual implementation, connect to system shell via WebSockets/SSH
+            Для фактической реализации подключитесь к системной оболочке через WebSockets/SSH.
           </div>
         </div>
         
@@ -192,7 +192,7 @@ const ToolExecutor = ({
       
       {exampleCommands && exampleCommands.length > 0 && (
         <div className="flex items-center flex-wrap gap-2">
-          <span className="text-xs text-[rgb(var(--color-text-secondary))]">Examples:</span>
+          <span className="text-xs text-[rgb(var(--color-text-secondary))]">Примеры:</span>
           <div className="flex flex-wrap gap-2">
             {exampleCommands.map((example, index) => (
               <button 
@@ -297,8 +297,8 @@ export const GearRoomTools: React.FC = () => {
           setNmapState({
             isExecuting: false,
             lastResult: {
-              output: `Error: ${error.message || 'Failed to execute port scan'}`,
-              status: 'error',
+              output: `Ошибка: ${error.message || 'Не удалось выполнить сканирование портов.'}`,
+              status: 'ошибка',
               timestamp: new Date().toISOString()
             }
           });
@@ -331,8 +331,8 @@ export const GearRoomTools: React.FC = () => {
           setDigState({
             isExecuting: false,
             lastResult: {
-              output: `Error: ${error instanceof Error ? error.message : 'Failed to execute DNS lookup'}`,
-              status: 'error',
+              output: `Ошибка: ${error instanceof Error ? error.message : 'Не удалось выполнить поиск DNS'}`,
+              status: 'Ошибка',
               timestamp: new Date().toISOString()
             }
           });
@@ -363,8 +363,8 @@ export const GearRoomTools: React.FC = () => {
           setNslookupState({
             isExecuting: false,
             lastResult: {
-              output: `Error: ${error instanceof Error ? error.message : 'Failed to execute nslookup'}`,
-              status: 'error',
+              output: `Ошибка: ${error instanceof Error ? error.message : 'Не удалось выполнить nslookup'}`,
+              status: 'Ошибка',
               timestamp: new Date().toISOString()
             }
           });
@@ -395,8 +395,8 @@ export const GearRoomTools: React.FC = () => {
           setTracerouteState({
             isExecuting: false,
             lastResult: {
-              output: `Error: ${error instanceof Error ? error.message : 'Failed to execute traceroute'}`,
-              status: 'error',
+              output: `Ошибка: ${error instanceof Error ? error.message : 'Не удалось выполнить traceroute'}`,
+              status: 'Ошибка',
               timestamp: new Date().toISOString()
             }
           });
@@ -427,8 +427,8 @@ export const GearRoomTools: React.FC = () => {
           setWhoisState({
             isExecuting: false,
             lastResult: {
-              output: `Error: ${error instanceof Error ? error.message : 'Failed to execute whois lookup'}`,
-              status: 'error',
+              output: `Ошибка: ${error instanceof Error ? error.message : 'Не удалось выполнить поиск whois'}`,
+              status: 'Ошибка',
               timestamp: new Date().toISOString()
             }
           });
@@ -459,8 +459,8 @@ export const GearRoomTools: React.FC = () => {
           setNetstatState({
             isExecuting: false,
             lastResult: {
-              output: `Error: ${error instanceof Error ? error.message : 'Failed to execute netstat command'}`,
-              status: 'error',
+              output: `Ошибка: ${error instanceof Error ? error.message : 'Не удалось выполнить команду netstat'}`,
+              status: 'Ошибка',
               timestamp: new Date().toISOString()
             }
           });
@@ -491,8 +491,8 @@ export const GearRoomTools: React.FC = () => {
           setPingState({
             isExecuting: false,
             lastResult: {
-              output: `Error: ${error.message || 'Failed to execute ping command'}`,
-              status: 'error',
+              output: `Ошибка: ${error.message || 'Не удалось выполнить команду ping'}`,
+              status: 'Ошибка',
               timestamp: new Date().toISOString()
             }
           });
@@ -523,8 +523,8 @@ export const GearRoomTools: React.FC = () => {
           setSslState({
             isExecuting: false,
             lastResult: {
-              output: `Error: ${error instanceof Error ? error.message : 'Failed to execute SSL check'}`,
-              status: 'error',
+              output: `Ошибка: ${error instanceof Error ? error.message : 'Не удалось выполнить проверку SSL'}`,
+              status: 'Ошибка',
               timestamp: new Date().toISOString()
             }
           });
@@ -555,8 +555,8 @@ export const GearRoomTools: React.FC = () => {
           setIpRouteState({
             isExecuting: false,
             lastResult: {
-              output: `Error: ${error instanceof Error ? error.message : 'Failed to retrieve routing table'}`,
-              status: 'error',
+              output: `Ошибка: ${error instanceof Error ? error.message : 'Не удалось получить таблицу маршрутизации'}`,
+              status: 'Ошибка',
               timestamp: new Date().toISOString()
             }
           });
@@ -610,8 +610,8 @@ export const GearRoomTools: React.FC = () => {
           setTcpdumpState({
             isExecuting: false,
             lastResult: {
-              output: `Error: ${error instanceof Error ? error.message : 'Failed to execute packet capture'}`,
-              status: 'error',
+              output: `Ошибка: ${error instanceof Error ? error.message : 'Не удалось выполнить захват пакета.'}`,
+              status: 'Ошибка',
               timestamp: new Date().toISOString()
             }
           });
@@ -624,15 +624,15 @@ export const GearRoomTools: React.FC = () => {
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
         <div>
-          <h1 className="text-2xl font-bold text-[rgb(var(--color-text))]">GearRoom</h1>
-          <p className="text-[rgb(var(--color-text-secondary))]">Security tools and system utilities</p>
+          <h1 className="text-2xl font-bold text-[rgb(var(--color-text))]">PowerTools</h1>
+          <p className="text-[rgb(var(--color-text-secondary))]">Инструменты безопасности и системные утилиты</p>
         </div>
       </div>
       
       {/* System Terminal Panel */}
       <Panel 
-        title="System Terminal" 
-        description="Secure shell access to system"
+        title="Системный терминал" 
+        description="Безопасный доступ к оболочке системы"
         actions={
           <>
             <Button 
@@ -659,22 +659,22 @@ export const GearRoomTools: React.FC = () => {
       
       {/* Network Diagnostic Tools Panel */}
       <Panel 
-        title="Network Diagnostics" 
-        description="Essential network troubleshooting tools"
+        title="Диагностика сети" 
+        description="Основные инструменты для устранения неполадок в сети"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Using the new ToolCard component */}
           <ToolCard
             icon={<Wifi size={24} />}
-            title="Ping Tool"
-            description="Test basic network connectivity to a host"
-            badge={{ text: "Basic", color: "info" }}
+            title="Инструмент Пинг"
+            description="Проверка базового сетевого подключения к хосту"
+            badge={{ text: "Базовый", color: "info" }}
             defaultExpanded={true}
           >
             <ToolExecutor 
-              toolName="Ping Tool"
-              placeholder="Enter hostname or IP address (e.g., google.com)"
-              buttonText="Ping"
+              toolName="Инструмент Пинг"
+              placeholder="Введите имя хоста или IP-адрес (например, google.com)"
+              buttonText="Пинг"
               exampleCommands={['google.com', '8.8.8.8', 'github.com']}
               processCommand={runPing}
               isExecuting={pingState.isExecuting}
@@ -685,14 +685,14 @@ export const GearRoomTools: React.FC = () => {
           
           <ToolCard
             icon={<Search size={24} />}
-            title="Port Scanner (nmap)"
-            description="Scan for open ports and services on target hosts"
-            badge={{ text: "Security", color: "warning" }}
+            title="Сканер портов (nmap)"
+            description="Сканировать открытые порты и службы на целевых хостах"
+            badge={{ text: "Безопастность", color: "warning" }}
           >
             <ToolExecutor 
-              toolName="Port Scanner (nmap)"
-              placeholder="Enter hostname or IP address to scan"
-              buttonText="Scan"
+              toolName="Сканер портов (nmap)"
+              placeholder="Введите имя хоста или IP-адрес для сканирования"
+              buttonText="Сканировать"
               exampleCommands={['localhost', '127.0.0.1', 'scanme.nmap.org']}
               processCommand={runNmap}
               isExecuting={nmapState.isExecuting}
@@ -703,14 +703,14 @@ export const GearRoomTools: React.FC = () => {
           
           <ToolCard
             icon={<Database size={24} />}
-            title="DNS Lookup (dig)"
-            description="Query DNS records for a domain"
-            badge={{ text: "Network", color: "success" }}
+            title="DNS-поиск (dig)"
+            description="Запрос DNS-записей для домена"
+            badge={{ text: "Сеть", color: "success" }}
           >
             <ToolExecutor 
-              toolName="DNS Lookup (dig)"
-              placeholder="Enter domain name (e.g., example.com)"
-              buttonText="Lookup"
+              toolName="DNS-поиск (dig)"
+              placeholder="Введите доменное имя (например, example.com)"
+              buttonText="Поиск"
               exampleCommands={['example.com', 'google.com A', 'example.com MX']}
               processCommand={runDig}
               isExecuting={digState.isExecuting}
@@ -721,14 +721,14 @@ export const GearRoomTools: React.FC = () => {
           
           <ToolCard
             icon={<Activity size={24} />}
-            title="Traceroute"
-            description="Trace network path to target host"
-            badge={{ text: "Network", color: "success" }}
+            title="Трассировка"
+            description="Трассировка сетевого пути к целевому хосту"
+            badge={{ text: "Сеть", color: "успешно" }}
           >
             <ToolExecutor 
-              toolName="Traceroute"
-              placeholder="Enter hostname or IP for traceroute"
-              buttonText="Trace"
+              toolName="Трассировка"
+              placeholder="Введите имя хоста или IP-адрес для трассировки"
+              buttonText="Трассировка"
               exampleCommands={['example.com', '8.8.8.8']}
               processCommand={runTraceroute}
               isExecuting={tracerouteState.isExecuting}
@@ -739,13 +739,13 @@ export const GearRoomTools: React.FC = () => {
           
           <ToolCard
             icon={<Database size={24} />}
-            title="Whois Lookup"
-            description="Query domain registration and IP allocation information"
+            title="Поиск Whois"
+            description="Запрос информации о регистрации домена и выделении IP-адреса"
           >
             <ToolExecutor 
-              toolName="Whois Lookup"
-              placeholder="Enter domain or IP address"
-              buttonText="Lookup"
+              toolName="Поиск Whois"
+              placeholder="Введите домен или IP-адрес"
+              buttonText="Поиск"
               exampleCommands={['example.com', '192.168.1.1']}
               processCommand={runWhois}
               isExecuting={whoisState.isExecuting}
@@ -756,14 +756,14 @@ export const GearRoomTools: React.FC = () => {
           
           <ToolCard
             icon={<Shield size={24} />}
-            title="SSL Certificate Checker"
-            description="Validate SSL certificates and configurations"
-            badge={{ text: "Security", color: "warning" }}
+            title="Проверка SSL-сертификатов"
+            description="Проверка SSL-сертификатов и конфигураций"
+            badge={{ text: "Безопастность", color: "warning" }}
           >
             <ToolExecutor 
-              toolName="SSL Certificate Checker"
-              placeholder="Enter domain to check SSL certificate"
-              buttonText="Check"
+              toolName="Проверка SSL-сертификатов"
+              placeholder="Введите домен для проверки SSL-сертификата"
+              buttonText="Проверить"
               exampleCommands={['example.com', 'google.com']}
               processCommand={runSslCheck}
               isExecuting={sslState.isExecuting}
@@ -776,20 +776,20 @@ export const GearRoomTools: React.FC = () => {
       
       {/* System Network Tools */}
       <Panel
-        title="System Network Tools"
-        description="Local network analysis tools"
+        title="Системные сетевые инструменты"
+        description="Инструменты анализа локальной сети"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <ToolCard
             icon={<Network size={24} />}
-            title="Network Connections"
-            description="View active network connections"
-            badge={{ text: "Network", color: "success" }}
+            title="Сетевые подключения"
+            description="Просмотр активных сетевых подключений"
+            badge={{ text: "Сеть", color: "успешно" }}
           >
             <ToolExecutor 
-              toolName="Network Connections"
-              placeholder="Optional parameters for netstat"
-              buttonText="View Connections"
+              toolName="Сетевые подключения"
+              placeholder="Дополнительные параметры для netstat"
+              buttonText="Просмотр соединений"
               exampleCommands={['-tuln', '-ap', '-r']}
               processCommand={runNetstat}
               isExecuting={netstatState.isExecuting}
@@ -800,14 +800,14 @@ export const GearRoomTools: React.FC = () => {
           
           <ToolCard
             icon={<Router size={24} />}
-            title="Routing Table"
-            description="View IP routing information"
-            badge={{ text: "Network", color: "success" }}
+            title="Таблица маршрутизации"
+            description="Просмотр информации о маршрутизации IP"
+            badge={{ text: "Сеть", color: "успешно" }}
           >
             <ToolExecutor 
-              toolName="Routing Table"
-              placeholder="Optional parameters"
-              buttonText="View Routes"
+              toolName="Таблица маршрутизации"
+              placeholder="Дополнительные параметры"
+              buttonText="Посмотреть маршруты"
               exampleCommands={['']}
               processCommand={runIpRoute}
               isExecuting={ipRouteState.isExecuting}
@@ -818,14 +818,14 @@ export const GearRoomTools: React.FC = () => {
           
           <ToolCard
             icon={<Waves size={24} />}
-            title="Packet Capture"
-            description="Inspect network traffic at packet level"
-            badge={{ text: "Advanced", color: "primary" }}
+            title="Захват пакетов"
+            description="Проверка сетевого трафика на уровне пакетов"
+            badge={{ text: "Дополнительно", color: "primary" }}
           >
             <ToolExecutor 
-              toolName="Packet Capture"
-              placeholder="Enter options or leave empty"
-              buttonText="Capture"
+              toolName="Захват пакетов"
+              placeholder="Введите параметры или оставьте пустым"
+              buttonText="Захватить"
               exampleCommands={['-i eth0', '-i eth0 port 80', '-i eth0 host 192.168.1.1']}
               processCommand={runTcpdump}
               isExecuting={tcpdumpState.isExecuting}
@@ -836,14 +836,13 @@ export const GearRoomTools: React.FC = () => {
           
           <ToolCard
             icon={<GitBranch size={24} />}
-            title="DNS Reverse Lookup"
-            description="Resolve IP addresses to hostnames"
-            badge={{ text: "Network", color: "success" }}
+            title="Обратный поиск DNS"
+            description="Преобразовать IP-адреса в имена хостов"
+            badge={{ text: "Сеть", color: "успешно" }}
           >
             <ToolExecutor 
-              toolName="DNS Reverse Lookup"
-              placeholder="Enter IP address to lookup"
-              buttonText="Lookup"
+              placeholder="Введите IP-адрес для поиска"
+              buttonText="Искать"
               exampleCommands={['8.8.8.8', '1.1.1.1']}
               processCommand={runNslookup}
               isExecuting={nslookupState.isExecuting}

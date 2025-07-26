@@ -41,9 +41,9 @@ import {
 interface ServiceConnection {
   id: string;
   name: string;
-  type: 'communication' | 'security' | 'monitoring' | 'cloud' | 'authentication';
+  type: 'Безопастность' | 'Мониторинг' | 'Аутентификация';
   provider: string;
-  status: 'connected' | 'disconnected' | 'error' | 'pending';
+  status: 'подключено' | 'отключено' | 'ошибка' | 'ожидание';
   lastConnected: string | null;
   icon: React.ReactNode;
   connectedAccount?: string;
@@ -74,155 +74,96 @@ export const BasecampIntegrations: React.FC = () => {
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       const sampleConnections: ServiceConnection[] = [
-        {
-          id: 'ms-teams-1',
-          name: 'Microsoft Teams',
-          type: 'communication',
-          provider: 'Microsoft',
-          status: 'disconnected',
-          lastConnected: null,
-          icon: <MessageSquare size={24} />,
-          description: 'Security incident collaboration and response'
-        },
-        {
-          id: 'pagerduty-1',
-          name: 'PagerDuty',
-          type: 'communication',
-          provider: 'PagerDuty',
-          status: 'disconnected',
-          lastConnected: null,
-          icon: <Phone size={24} />,
-          description: 'On-call rotation and emergency notifications'
-        },
+
         {
           id: 'datadog-1',
           name: 'Datadog',
-          type: 'monitoring',
+          type: 'Мониторинг',
           provider: 'Datadog',
-          status: 'disconnected',
+          status: 'Отключено',
           lastConnected: null,
           icon: <FileBarChart size={24} />,
-          description: 'Security observability and compliance monitoring'
+          description: 'Мониторинг безопасности и соответствия требованиям'
         },
         {
           id: 'splunk-1',
           name: 'Splunk',
-          type: 'monitoring',
+          type: 'Мониторинг',
           provider: 'Splunk',
-          status: 'disconnected',
+          status: 'Отключено',
           lastConnected: null,
           icon: <FileDigit size={24} />,
-          description: 'SIEM integration for security log analysis'
+          description: 'Интеграция SIEM для анализа журналов безопасности'
         },
         {
           id: 'crowdstrike-1',
           name: 'CrowdStrike',
-          type: 'security',
+          type: 'Безопастность',
           provider: 'CrowdStrike',
-          status: 'disconnected',
+          status: 'Отключено',
           lastConnected: null,
           icon: <ShieldAlert size={24} />,
-          description: 'Endpoint security and threat intelligence'
+          description: 'Безопасность конечных точек и аналитика угроз'
         },
         {
           id: 'sentinelone-1',
           name: 'SentinelOne',
-          type: 'security',
+          type: 'Безопастность',
           provider: 'SentinelOne',
-          status: 'disconnected',
+          status: 'Отключено',
           lastConnected: null,
           icon: <Shield size={24} />,
-          description: 'Autonomous endpoint protection'
-        },
-        {
-          id: 'aws-1',
-          name: 'AWS Security Hub',
-          type: 'cloud',
-          provider: 'Amazon',
-          status: 'disconnected',
-          lastConnected: null,
-          icon: <Cloud size={24} />,
-          description: 'Cloud security posture and compliance'
-        },
-        {
-          id: 'azure-sentinel-1',
-          name: 'Azure Sentinel',
-          type: 'cloud',
-          provider: 'Microsoft',
-          status: 'disconnected',
-          lastConnected: null,
-          icon: <CloudCog size={24} />,
-          description: 'Cloud SIEM and security analytics'
+          description: 'Автономная защита конечных точек'
         },
         {
           id: 'okta-1',
           name: 'Okta',
-          type: 'authentication',
+          type: 'Аутентификация',
           provider: 'Okta',
-          status: 'disconnected',
+          status: 'Отключено',
           lastConnected: null,
           icon: <User size={24} />,
-          description: 'Identity management and SSO'
+          description: 'Управление идентификацией и единый вход'
         },
         {
           id: 'hashicorp-vault-1',
           name: 'HashiCorp Vault',
-          type: 'security',
+          type: 'Безопастность',
           provider: 'HashiCorp',
-          status: 'disconnected',
+          status: 'Отключено',
           lastConnected: null,
           icon: <KeyRound size={24} />,
-          description: 'Secrets management and data encryption'
+          description: 'Управление секретами и шифрование данных'
         },
         {
           id: 'cloudflare-1',
           name: 'Cloudflare',
-          type: 'security',
+          type: 'Безопастность',
           provider: 'Cloudflare',
-          status: 'disconnected',
+          status: 'Отключено',
           lastConnected: null,
           icon: <Shield size={24} />,
-          description: 'DDoS protection and WAF'
-        },
-        {
-          id: 'prisma-cloud-1',
-          name: 'Prisma Cloud',
-          type: 'cloud',
-          provider: 'Palo Alto Networks',
-          status: 'disconnected',
-          lastConnected: null,
-          icon: <CloudCog size={24} />,
-          description: 'Cloud native security platform'
+          description: 'Защита от DDoS-атак и WAF'
         },
         {
           id: 'snyk-1',
           name: 'Snyk',
-          type: 'security',
+          type: 'Безопастность',
           provider: 'Snyk',
-          status: 'disconnected',
+          status: 'Отключено',
           lastConnected: null,
           icon: <GitBranch size={24} />,
-          description: 'Software composition analysis'
-        },
-        {
-          id: 'opsgenie-1',
-          name: 'Opsgenie',
-          type: 'communication',
-          provider: 'Atlassian',
-          status: 'disconnected',
-          lastConnected: null,
-          icon: <Bell size={24} />,
-          description: 'Alert escalation and on-call management'
+          description: 'Анализ состава программного обеспечения'
         },
         {
           id: 'sonarqube-1',
           name: 'SonarQube',
-          type: 'security',
+          type: 'Безопастность',
           provider: 'SonarSource',
-          status: 'disconnected',
+          status: 'Отключено',
           lastConnected: null,
           icon: <Terminal size={24} />,
-          description: 'Code quality and security review'
+          description: 'Проверка качества кода и безопасности'
         }
       ];
       
@@ -251,9 +192,9 @@ export const BasecampIntegrations: React.FC = () => {
       setConnections(prev => 
         prev.map(conn => {
           if (conn.id === id) {
-            const newStatus = conn.status === 'connected' ? 'disconnected' : 'connected';
+            const newStatus = conn.status === 'Подключено' ? 'Отключено' : 'Подключено';
             // Only set lastConnected when connecting, keep null when disconnecting
-            const newLastConnected = newStatus === 'connected' ? new Date().toISOString() : null;
+            const newLastConnected = newStatus === 'Подключено' ? new Date().toISOString() : null;
             
             // For connected state, we'll just add placeholder text for account details
             // The actual implementation of connection details will be done later
@@ -261,8 +202,8 @@ export const BasecampIntegrations: React.FC = () => {
               ...conn,
               status: newStatus,
               lastConnected: newLastConnected,
-              connectedAccount: newStatus === 'connected' ? 'Configure connection settings' : undefined,
-              workspaces: newStatus === 'connected' ? ['Settings required'] : undefined
+              connectedAccount: newStatus === 'Подключено' ? 'Настроить параметры подключения' : undefined,
+              workspaces: newStatus === 'Подключено' ? ['Необходимые настройки'] : undefined
             };
           }
           return conn;
@@ -273,9 +214,9 @@ export const BasecampIntegrations: React.FC = () => {
   };
   
   // Get counts for the overview
-  const connectedCount = connections.filter(c => c.status === 'connected').length;
-  const errorCount = connections.filter(c => c.status === 'error').length;
-  const pendingCount = connections.filter(c => c.status === 'pending').length;
+  const connectedCount = connections.filter(c => c.status === 'Подключено').length;
+  const errorCount = connections.filter(c => c.status === 'Ошибка').length;
+  const pendingCount = connections.filter(c => c.status === 'Ожидание').length;
   
   // Filter connections by type
   const filteredConnections = activeFilter 
@@ -284,11 +225,9 @@ export const BasecampIntegrations: React.FC = () => {
   
   // Group connections by type
   const groupedConnections = {
-    communication: connections.filter(conn => conn.type === 'communication'),
-    security: connections.filter(conn => conn.type === 'security'),
-    monitoring: connections.filter(conn => conn.type === 'monitoring'),
-    cloud: connections.filter(conn => conn.type === 'cloud'),
-    authentication: connections.filter(conn => conn.type === 'authentication')
+    security: connections.filter(conn => conn.type === 'Безопастность'),
+    monitoring: connections.filter(conn => conn.type === 'Мониторинг'),
+    authentication: connections.filter(conn => conn.type === 'Аутентификация')
   };
   
   // Animation variants
@@ -340,9 +279,9 @@ export const BasecampIntegrations: React.FC = () => {
             <div className="flex items-center space-x-2">
               <StatusPill 
                 status={
-                  connection.status === 'connected' ? 'success' : 
-                  connection.status === 'pending' ? 'warning' : 
-                  connection.status === 'error' ? 'error' : 'warning' // Default to 'warning' instead of 'none'
+                  connection.status === 'Подключено' ? 'успешно' : 
+                  connection.status === 'В ожидании' ? 'предупреждение' : 
+                  connection.status === 'Ошибка' ? 'Ошибка' : 'Ожидание' // Default to 'warning' instead of 'none'
                 } 
                 text={connection.status} 
                 size="sm"
@@ -365,7 +304,7 @@ export const BasecampIntegrations: React.FC = () => {
             </div>
           )}
           
-          {connection.status === 'connected' && (
+          {connection.status === 'Подключено' && (
             <motion.div 
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
@@ -373,42 +312,57 @@ export const BasecampIntegrations: React.FC = () => {
             >
               <div className="flex items-center justify-center p-3 bg-[rgba(var(--color-primary),0.05)] rounded-md text-sm">
                 <Settings size={16} className="text-[rgb(var(--color-primary))] mr-2" />
-                <span>Configuration required. Visit settings to complete setup.</span>
+                <span>Требуется настройка. Для завершения настройки перейдите в раздел настроек.</span>
               </div>
               
               {connection.lastConnected && (
                 <div className="flex justify-between text-sm mt-2">
-                  <span className="text-[rgb(var(--color-text-secondary))]">Connected:</span>
+                  <span className="text-[rgb(var(--color-text-secondary))]">Подключено:</span>
                   <span>{new Date(connection.lastConnected).toLocaleDateString()}</span>
                 </div>
               )}
             </motion.div>
           )}
           
-          {connection.status === 'error' && (
+          {connection.status === 'Ошибка' && (
             <motion.div 
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               className="mt-4 p-3 bg-[rgba(var(--color-error),0.1)] rounded-md text-sm flex items-center"
             >
               <AlertTriangle size={16} className="text-[rgb(var(--color-error))] mr-2" />
-              Authentication token expired. Please reconnect.
+              Срок действия токена аутентификации истёк. Пожалуйста, переподключитесь.
             </motion.div>
           )}
           
           <div className="mt-4 flex justify-end">
-            <Button 
-              onClick={() => toggleConnection(connection.id)}
-              disabled={isCurrentlyConnecting || connection.status === 'pending'}
-              variant={connection.status === 'connected' ? 'outline' : 'outline'}
-              size="sm"
-              isLoading={isCurrentlyConnecting}
-              leftIcon={isCurrentlyConnecting ? undefined : (connection.status === 'connected' ? <X size={14} /> : <ExternalLink size={14} />)}
-              className={connection.status === 'connected' ? 'text-[rgb(var(--color-error-light))] hover:bg-[rgba(var(--color-error),0.1)]' : ''}
-            >
-              {isCurrentlyConnecting ? 'Processing...' : connection.status === 'connected' ? 'Disconnect' : 'Connect'}
-            </Button>
-          </div>
+  <Button
+    onClick={() => toggleConnection(connection.id)}
+    disabled={isCurrentlyConnecting || connection.status === 'в ожидании'}
+    variant="outline"
+    size="sm"
+    isLoading={isCurrentlyConnecting}
+    leftIcon={
+      isCurrentlyConnecting
+        ? undefined
+        : connection.status === 'Подключено'
+        ? <X size={14} />             // крестик при "Отключить"
+        : <ExternalLink size={14} /> // ссылка при "Подключить"
+    }
+    className={
+      connection.status !== 'Подключено'
+        ? 'text-[rgb(var(--color-error-light))] hover:bg-[rgba(var(--color-error),0.1)]'
+        : ''
+    }
+  >
+    {isCurrentlyConnecting
+      ? 'Процесс...'
+      : connection.status === 'Подключено'
+      ? 'Отключить'
+      : 'Подключить'}
+  </Button>
+</div>
+
         </Card>
       </motion.div>
     );
@@ -416,12 +370,10 @@ export const BasecampIntegrations: React.FC = () => {
   
   // Updated filter buttons to match the new integration types
   const filterButtons = [
-    { id: null, label: 'All' },
-    { id: 'communication', label: 'Communication' },
-    { id: 'security', label: 'Security' },
-    { id: 'monitoring', label: 'Monitoring' },
-    { id: 'cloud', label: 'Cloud' },
-    { id: 'authentication', label: 'Authentication' }
+    { id: null, label: 'Все' },
+    { id: 'security', label: 'Безопастность' },
+    { id: 'monitoring', label: 'Мониторинг' },
+    { id: 'authentication', label: 'Аутентификация' }
   ];
   
   return (
@@ -429,21 +381,21 @@ export const BasecampIntegrations: React.FC = () => {
       {/* Page header with breadcrumbs */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
         <div>
-          <h1 className="text-2xl font-bold text-[rgb(var(--color-text))]">Basecamp</h1>
-          <p className="text-[rgb(var(--color-text-secondary))]">Manage your security service connections</p>
+          <h1 className="text-2xl font-bold text-[rgb(var(--color-text))]">FlowConnect</h1>
+          <p className="text-[rgb(var(--color-text-secondary))]">Управляйте подключениями к службам безопасности</p>
         </div>
       </div>
 
       {/* Overview panel */}
       <Panel 
-        title="Connections Overview" 
-        description="Status of your security integrations"
+        title="Обзор подключений" 
+        description="Состояние ваших интеграций безопасности"
       >
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="bg-[rgba(var(--color-primary),0.05)]">
             <div className="flex justify-between items-center">
               <div>
-                <div className="text-sm text-[rgb(var(--color-text-secondary))]">Total Connections</div>
+                <div className="text-sm text-[rgb(var(--color-text-secondary))]">Всего подключений</div>
                 <div className="text-2xl font-semibold">{connections.length}</div>
               </div>
               <div className="p-2 bg-[rgba(var(--color-primary),0.1)] rounded-full text-[rgb(var(--color-primary))]">
@@ -455,7 +407,7 @@ export const BasecampIntegrations: React.FC = () => {
           <Card className="bg-[rgba(var(--color-success),0.05)]">
             <div className="flex justify-between items-center">
               <div>
-                <div className="text-sm text-[rgb(var(--color-text-secondary))]">Connected</div>
+                <div className="text-sm text-[rgb(var(--color-text-secondary))]">Подключено</div>
                 <div className="text-2xl font-semibold">{connectedCount}</div>
               </div>
               <div className="p-2 bg-[rgba(var(--color-success),0.1)] rounded-full text-[rgb(var(--color-success))]">
@@ -467,7 +419,7 @@ export const BasecampIntegrations: React.FC = () => {
           <Card className="bg-[rgba(var(--color-error),0.05)]">
             <div className="flex justify-between items-center">
               <div>
-                <div className="text-sm text-[rgb(var(--color-text-secondary))]">Connection Errors</div>
+                <div className="text-sm text-[rgb(var(--color-text-secondary))]">Ошибки подключения</div>
                 <div className="text-2xl font-semibold">{errorCount}</div>
               </div>
               <div className="p-2 bg-[rgba(var(--color-error),0.1)] rounded-full text-[rgb(var(--color-error))]">
@@ -479,7 +431,7 @@ export const BasecampIntegrations: React.FC = () => {
           <Card className="bg-[rgba(var(--color-warning),0.05)]">
             <div className="flex justify-between items-center">
               <div>
-                <div className="text-sm text-[rgb(var(--color-text-secondary))]">Pending</div>
+                <div className="text-sm text-[rgb(var(--color-text-secondary))]">В ожидании</div>
                 <div className="text-2xl font-semibold">{pendingCount}</div>
               </div>
               <div className="p-2 bg-[rgba(var(--color-warning),0.1)] rounded-full text-[rgb(var(--color-warning))]">
@@ -537,7 +489,7 @@ export const BasecampIntegrations: React.FC = () => {
                       onClick={() => setShowAddModal(true)}
                       variant="primary"
                     >
-                      Add Integration
+                      Добавить интеграцию
                     </Button>
                   }
                 />
@@ -551,8 +503,8 @@ export const BasecampIntegrations: React.FC = () => {
         <>
           {/* Security Services */}
           <Panel 
-            title="Security Services" 
-            description="Security tools and threat intelligence platforms"
+            title="Услуги безопасности" 
+            description="Инструменты безопасности и платформы анализа угроз"
             defaultExpanded={true}
           >
             {isLoading ? (
@@ -572,7 +524,7 @@ export const BasecampIntegrations: React.FC = () => {
             ) : (
               <Card>
                 <CardEmptyState 
-                  message="No security services connected"
+                  message="Службы безопасности не подключены"
                   action={
                     <Button 
                       onClick={() => {
@@ -581,7 +533,7 @@ export const BasecampIntegrations: React.FC = () => {
                       }}
                       variant="primary"
                     >
-                      Connect Service
+                      Подключить сервис
                     </Button>
                   }
                 />
@@ -589,50 +541,13 @@ export const BasecampIntegrations: React.FC = () => {
             )}
           </Panel>
           
-          {/* Communication Services */}
-          <Panel 
-            title="Communication Services" 
-            description="Alerts, notifications, and incident response"
-            defaultExpanded={true}
-          >
-            {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[1, 2].map(i => (
-                  <Card key={i} className="animate-pulse">
-                    <div className="h-20 w-full bg-[rgba(var(--color-card-muted),0.3)] rounded"></div>
-                  </Card>
-                ))}
-              </div>
-            ) : groupedConnections.communication.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {groupedConnections.communication.map((connection, index) => 
-                  renderConnectionCard(connection, index)
-                )}
-              </div>
-            ) : (
-              <Card>
-                <CardEmptyState 
-                  message="No communication services connected"
-                  action={
-                    <Button 
-                      onClick={() => {
-                        setSelectedType('communication');
-                        setShowAddModal(true);
-                      }}
-                      variant="primary"
-                    >
-                      Connect Service
-                    </Button>
-                  }
-                />
-              </Card>
-            )}
-          </Panel>
+        
+          
           
           {/* Monitoring Services */}
           <Panel 
-            title="Monitoring Services" 
-            description="Log analysis and security monitoring"
+            title="Служба мониторинга" 
+            description="Анализ журналов и мониторинг безопасности"
             defaultExpanded={true}
           >
             {isLoading ? (
@@ -652,7 +567,7 @@ export const BasecampIntegrations: React.FC = () => {
             ) : (
               <Card>
                 <CardEmptyState 
-                  message="No monitoring services connected"
+                  message="Службы мониторинга не подключены"
                   action={
                     <Button 
                       onClick={() => {
@@ -661,7 +576,7 @@ export const BasecampIntegrations: React.FC = () => {
                       }}
                       variant="primary"
                     >
-                      Connect Service
+                      Подключить сервис
                     </Button>
                   }
                 />
@@ -669,50 +584,11 @@ export const BasecampIntegrations: React.FC = () => {
             )}
           </Panel>
           
-          {/* Cloud Services */}
-          <Panel 
-            title="Cloud Security" 
-            description="Cloud security and compliance services"
-            defaultExpanded={true}
-          >
-            {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[1, 2].map(i => (
-                  <Card key={i} className="animate-pulse">
-                    <div className="h-20 w-full bg-[rgba(var(--color-card-muted),0.3)] rounded"></div>
-                  </Card>
-                ))}
-              </div>
-            ) : groupedConnections.cloud.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {groupedConnections.cloud.map((connection, index) => 
-                  renderConnectionCard(connection, index)
-                )}
-              </div>
-            ) : (
-              <Card>
-                <CardEmptyState 
-                  message="No cloud security services connected"
-                  action={
-                    <Button 
-                      onClick={() => {
-                        setSelectedType('cloud');
-                        setShowAddModal(true);
-                      }}
-                      variant="primary"
-                    >
-                      Connect Service
-                    </Button>
-                  }
-                />
-              </Card>
-            )}
-          </Panel>
           
           {/* Authentication Services */}
           <Panel 
-            title="Authentication Services" 
-            description="Identity and access management"
+            title="Службы аутентификации" 
+            description="Управление идентификацией и доступом"
             defaultExpanded={true}
           >
             {isLoading ? (
@@ -732,7 +608,7 @@ export const BasecampIntegrations: React.FC = () => {
             ) : (
               <Card>
                 <CardEmptyState 
-                  message="No authentication services connected"
+                  message="Службы аутентификации не подключены"
                   action={
                     <Button 
                       onClick={() => {
@@ -741,7 +617,7 @@ export const BasecampIntegrations: React.FC = () => {
                       }}
                       variant="primary"
                     >
-                      Connect Service
+                      Подключить сервис
                     </Button>
                   }
                 />
@@ -753,17 +629,17 @@ export const BasecampIntegrations: React.FC = () => {
       
       {/* Advanced Settings Panel */}
       <Panel 
-        title="Connection Settings" 
-        description="Global security integration preferences"
+        title="Настройки подключения" 
+        description="Глобальные настройки интеграции безопасности"
         defaultExpanded={false}
       >
         <div className="space-y-4">
           <Card>
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="font-medium">Auto-Reconnect</h3>
+                <h3 className="font-medium">Автоматическое повторное подключение</h3>
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                  Automatically attempt reconnection when services disconnect
+                  Автоматически пытаться повторно подключиться при отключении услуг
                 </p>
               </div>
               <Button 
@@ -779,9 +655,9 @@ export const BasecampIntegrations: React.FC = () => {
           <Card>
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="font-medium">Critical Alerts</h3>
+                <h3 className="font-medium">Критические оповещения</h3>
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                  Receive immediate alerts for critical security events
+                  Получайте немедленные оповещения о критических событиях безопасности
                 </p>
               </div>
               <Button 
@@ -797,13 +673,13 @@ export const BasecampIntegrations: React.FC = () => {
           <Card>
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="font-medium">OAuth Security Level</h3>
+                <h3 className="font-medium">Уровень безопасности OAuth</h3>
                 <p className="text-sm text-[rgb(var(--color-text-secondary))]">
-                  Enhanced security for OAuth connection tokens
+                  Повышенная безопасность токенов подключения OAuth
                 </p>
               </div>
               <div className="flex items-center">
-                <span className="mr-2 text-sm text-[rgb(var(--color-text-secondary))]">High</span>
+                <span className="mr-2 text-sm text-[rgb(var(--color-text-secondary))]">Высокий</span>
                 <Lock size={18} className="text-[rgb(var(--color-success))]" />
               </div>
             </div>
@@ -829,7 +705,7 @@ export const BasecampIntegrations: React.FC = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center border-b border-[rgb(var(--color-border))] p-4">
-                <h2 className="text-xl font-semibold">Add Security Integration</h2>
+                <h2 className="text-xl font-semibold">Добавить интеграцию безопасности</h2>
                 <Button 
                   variant="ghost" 
                   onClick={() => setShowAddModal(false)}
@@ -844,19 +720,17 @@ export const BasecampIntegrations: React.FC = () => {
               <div className="p-6">
                 <div className="mb-6">
                   <label className="block mb-2 text-sm font-medium">
-                    Integration Type
+                    Тип интеграции
                   </label>
                   <select 
                     className="w-full p-2 border border-[rgb(var(--color-border))] rounded-md bg-[rgb(var(--color-card))]"
                     value={selectedType || ''}
                     onChange={(e) => setSelectedType(e.target.value || null)}
                   >
-                    <option value="">Select type...</option>
-                    <option value="security">Security</option>
-                    <option value="communication">Communication</option>
-                    <option value="monitoring">Monitoring</option>
-                    <option value="cloud">Cloud Security</option>
-                    <option value="authentication">Authentication</option>
+                    <option value="">Выберите тип...</option>
+                    <option value="security">Безопасность</option>
+                    <option value="monitoring">Мониторинг</option>
+                    <option value="authentication">Аутентификация</option>
                   </select>
                 </div>
                 
@@ -1027,7 +901,7 @@ export const BasecampIntegrations: React.FC = () => {
                         variant="primary"
                         fullWidth
                       >
-                        Continue
+                        Продолжить
                       </Button>
                     </div>
                   </div>
